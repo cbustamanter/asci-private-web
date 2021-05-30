@@ -1,0 +1,3 @@
+mutation changeUserStatus($id: String!, $status: Int!) {
+  changeUserStatus(id: $id, status: $status)
+}

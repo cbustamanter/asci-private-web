@@ -1,0 +1,13 @@
+fragment RegularUser on User {
+  id
+  names
+  surnames
+  email
+  status
+  statusText
+  cellphone
+  gender
+  genderText
+  role
+  country
+}
