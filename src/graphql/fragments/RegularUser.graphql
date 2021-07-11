@@ -5,9 +5,12 @@ fragment RegularUser on User {
   email
   status
   statusText
+  statusAction
   cellphone
   gender
   genderText
   role
   country
+  createdAt
+  totalCourses
 }

@@ -5,11 +5,17 @@ import { AppProps } from "next/app";
 import React from "react";
 import { DarkModeSwitch } from "../components/DarkModeSwitch";
 import { AdminLayout } from "../components/layouts/AdminLayout";
+import "../styles/global.css";
+import { withUrqlClient } from "next-urql";
+import { createUrqlClient } from "../utils/createUrqlClient";
 
 function MyApp({ Component, pageProps, router }: AppProps) {
+  const EmptyLayout = ({ children }: any) => {
+    return <>{children}</>;
+  };
   const Layout = router.pathname.startsWith("/admin")
     ? AdminLayout
-    : AdminLayout;
+    : EmptyLayout;
   return (
     <ChakraProvider theme={theme}>
       <Layout>
@@ -20,4 +26,5 @@ function MyApp({ Component, pageProps, router }: AppProps) {
   );
 }
 
-export default MyApp;
+//@ts-ignore
+export default withUrqlClient(createUrqlClient)(MyApp);

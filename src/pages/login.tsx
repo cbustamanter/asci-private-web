@@ -35,7 +35,11 @@ const Login: React.FC<loginProps> = ({}) => {
               if (typeof router.query.next === "string") {
                 router.push(router.query.next);
               } else {
-                router.push("/");
+                if (response.data.login.user.role === 1) {
+                  router.push("/");
+                } else {
+                  router.push("/admin");
+                }
               }
             }
           }}

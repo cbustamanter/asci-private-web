@@ -1,11 +1,7 @@
 import { Cache, cacheExchange, Resolver } from "@urql/exchange-graphcache";
+import { multipartFetchExchange } from "@urql/exchange-multipart-fetch";
 import Router from "next/router";
-import {
-  dedupExchange,
-  Exchange,
-  fetchExchange,
-  stringifyVariables,
-} from "urql";
+import { dedupExchange, Exchange, stringifyVariables } from "urql";
 import { pipe, tap } from "wonka";
 import { LoginMutation, MeDocument, MeQuery } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
@@ -25,6 +21,15 @@ const errorExchange: Exchange =
       })
     );
   };
+const invalidateAllUsers = (cache: Cache) => {
+  const key = "Query";
+  const field = "getUsers";
+  const allFields = cache.inspectFields(key);
+  const fieldInfos = allFields.filter((info) => info.fieldName === field);
+  fieldInfos.forEach((fi) => {
+    cache.invalidate(key, field, fi.arguments || {});
+  });
+};
 
 const cursorPagination = (): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
@@ -42,7 +47,7 @@ const cursorPagination = (): Resolver => {
       "users"
     );
     info.partial = !inCache;
-    const result: string[] = [];
+    let result: string[] = [];
     let hasMore = true;
     fieldInfos.forEach((fi) => {
       const key = cache.resolve(entityKey, fi.fieldKey) as string;
@@ -51,7 +56,7 @@ const cursorPagination = (): Resolver => {
       if (!_hasMore) {
         hasMore = _hasMore as boolean;
       }
-      result.push(...data);
+      result = data;
     });
     return {
       __typename: "PaginatedUsers",
@@ -59,16 +64,6 @@ const cursorPagination = (): Resolver => {
       users: result,
     };
   };
-};
-
-const invalidateAllUsers = (cache: Cache) => {
-  const key = "Query";
-  const field = "getUsers";
-  const allFields = cache.inspectFields(key);
-  const fieldInfos = allFields.filter((info) => info.fieldName === field);
-  fieldInfos.forEach((fi) => {
-    cache.invalidate(key, field, fi.arguments || {});
-  });
 };
 
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
@@ -87,29 +82,22 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
       cacheExchange({
         keys: {
           PaginatedUsers: () => null,
+          PaginatedCourses: () => null,
+          CourseDetail: () => null,
+          CourseSession: () => null,
         },
         resolvers: {
           Query: {
-            users: cursorPagination(),
+            getUsers: cursorPagination(),
           },
         },
         updates: {
           Mutation: {
+            createUser: (_result, args, cache, info) => {
+              invalidateAllUsers(cache);
+            },
             changeUserStatus: (_result, args, cache, info) => {
               invalidateAllUsers(cache);
-              // console.log(cache);
-              // const key = "Query";
-              // const fields = cache
-              //   .inspectFields(key)
-              //   .filter((field) => (field.fieldName = "User"))
-              //   .forEach((field) => {
-              //     console.log(field);
-              //     cache.invalidate(key, field.fieldName, field.arguments);
-              //   });
-              // cache.invalidate({
-              //   __typename: "User",
-              //   id: (args as ChangeUserStatusMutationVariables).id,
-              // });
             },
             login: (_result, args, cache, info) => {
               betterUpdateQuery<LoginMutation, MeQuery>(
@@ -132,7 +120,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
       }),
       errorExchange,
       ssrExchange,
-      fetchExchange,
+      multipartFetchExchange,
     ],
   };
 };

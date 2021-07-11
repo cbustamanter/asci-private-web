@@ -1,0 +1,9 @@
+.sidebarElement a {
+  text-decoration: unset !important;
+}
+.sidebarElement :hover {
+  opacity: 1 !important;
+}
+.sidebarElement .active {
+  opacity: 1 !important;
+}

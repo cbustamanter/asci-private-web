@@ -12,6 +12,49 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The `Upload` scalar type represents a file upload. */
+  Upload: any;
+};
+
+export type Course = {
+  __typename?: 'Course';
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  id: Scalars['String'];
+  status: Scalars['Int'];
+  hasTest: Scalars['Boolean'];
+  courseDetail: CourseDetail;
+  users?: Maybe<Array<User>>;
+  totalUsers: Scalars['Int'];
+  statusText: Scalars['String'];
+  hasTestText: Scalars['String'];
+};
+
+export type CourseDetail = {
+  __typename?: 'CourseDetail';
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  id: Scalars['String'];
+  name: Scalars['String'];
+  description: Scalars['String'];
+  coverPhoto: Scalars['String'];
+  startDate: Scalars['String'];
+  endDate: Scalars['String'];
+  classUrl: Scalars['String'];
+  courseSessions: Array<CourseSession>;
+};
+
+export type CourseSession = {
+  __typename?: 'CourseSession';
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  id: Scalars['String'];
+  name: Scalars['String'];
+  startTime: Scalars['String'];
+  endTime: Scalars['String'];
+  recordingUrl: Scalars['String'];
+  courseDetail: CourseDetail;
+  sessionFiles?: Maybe<Array<SessionFile>>;
 };
 
 export type FieldError = {
@@ -20,13 +63,52 @@ export type FieldError = {
   message: Scalars['String'];
 };
 
+export type ForgotPasswordResponse = {
+  __typename?: 'ForgotPasswordResponse';
+  errors?: Maybe<Array<FieldError>>;
+  response?: Maybe<Scalars['Boolean']>;
+};
+
+export type InputCourseDetail = {
+  hasTest: Scalars['Boolean'];
+  name: Scalars['String'];
+  description: Scalars['String'];
+  startDate: Scalars['String'];
+  endDate: Scalars['String'];
+  classUrl: Scalars['String'];
+  coverPhoto: Scalars['Upload'];
+};
+
+export type InputCourseSession = {
+  name: Scalars['String'];
+  startTime: Scalars['String'];
+  endTime: Scalars['String'];
+  recordingUrl: Scalars['String'];
+  files?: Maybe<Array<Scalars['Upload']>>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createCourse: Course;
+  singleUpload: UploadedFileResponse;
   createUser: UserResponse;
   login?: Maybe<UserResponse>;
   changeUserStatus: Scalars['Boolean'];
   logout: Scalars['Boolean'];
   updateUser: UserResponse;
+  forgotPassword: ForgotPasswordResponse;
+  changePassword: UserResponse;
+};
+
+
+export type MutationCreateCourseArgs = {
+  courseSessions: Array<InputCourseSession>;
+  courseDetail: InputCourseDetail;
+};
+
+
+export type MutationSingleUploadArgs = {
+  file: Scalars['Upload'];
 };
 
 
@@ -52,6 +134,24 @@ export type MutationUpdateUserArgs = {
   id: Scalars['String'];
 };
 
+
+export type MutationForgotPasswordArgs = {
+  email: Scalars['String'];
+};
+
+
+export type MutationChangePasswordArgs = {
+  newPassword: Scalars['String'];
+  token: Scalars['String'];
+};
+
+export type PaginatedCourses = {
+  __typename?: 'PaginatedCourses';
+  prev?: Maybe<Scalars['Int']>;
+  data: Array<Course>;
+  totalPages: Scalars['Int'];
+};
+
 export type PaginatedUsers = {
   __typename?: 'PaginatedUsers';
   users: Array<User>;
@@ -60,9 +160,16 @@ export type PaginatedUsers = {
 
 export type Query = {
   __typename?: 'Query';
+  courses: PaginatedCourses;
   me?: Maybe<User>;
   getUsers: PaginatedUsers;
   getUser: User;
+};
+
+
+export type QueryCoursesArgs = {
+  per_page?: Maybe<Scalars['Int']>;
+  page: Scalars['Int'];
 };
 
 
@@ -78,6 +185,24 @@ export type QueryGetUserArgs = {
   id: Scalars['String'];
 };
 
+export type SessionFile = {
+  __typename?: 'SessionFile';
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  id: Scalars['String'];
+  filename?: Maybe<Scalars['String']>;
+  courseSession: CourseSession;
+};
+
+
+export type UploadedFileResponse = {
+  __typename?: 'UploadedFileResponse';
+  filename: Scalars['String'];
+  mimetype: Scalars['String'];
+  encoding: Scalars['String'];
+  url: Scalars['String'];
+};
+
 export type User = {
   __typename?: 'User';
   id: Scalars['String'];
@@ -91,8 +216,11 @@ export type User = {
   status: Scalars['Int'];
   role: Scalars['Int'];
   country: Scalars['String'];
+  courses?: Maybe<Array<Course>>;
   genderText: Scalars['String'];
   statusText: Scalars['String'];
+  statusAction: Scalars['String'];
+  totalCourses: Scalars['Int'];
 };
 
 export type UserInput = {
@@ -118,7 +246,7 @@ export type RegularErrorFragment = (
 
 export type RegularUserFragment = (
   { __typename?: 'User' }
-  & Pick<User, 'id' | 'names' | 'surnames' | 'email' | 'status' | 'statusText' | 'cellphone' | 'gender' | 'genderText' | 'role' | 'country'>
+  & Pick<User, 'id' | 'names' | 'surnames' | 'email' | 'status' | 'statusText' | 'statusAction' | 'cellphone' | 'gender' | 'genderText' | 'role' | 'country' | 'createdAt' | 'totalCourses'>
 );
 
 export type RegularUserResponseFragment = (
@@ -132,6 +260,14 @@ export type RegularUserResponseFragment = (
   )> }
 );
 
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'logout'>
+);
+
 export type ChangeUserStatusMutationVariables = Exact<{
   id: Scalars['String'];
   status: Scalars['Int'];
@@ -141,6 +277,50 @@ export type ChangeUserStatusMutationVariables = Exact<{
 export type ChangeUserStatusMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'changeUserStatus'>
+);
+
+export type ChangePasswordMutationVariables = Exact<{
+  token: Scalars['String'];
+  newPassword: Scalars['String'];
+}>;
+
+
+export type ChangePasswordMutation = (
+  { __typename?: 'Mutation' }
+  & { changePassword: (
+    { __typename?: 'UserResponse' }
+    & RegularUserResponseFragment
+  ) }
+);
+
+export type CreateUserMutationVariables = Exact<{
+  input: UserInput;
+}>;
+
+
+export type CreateUserMutation = (
+  { __typename?: 'Mutation' }
+  & { createUser: (
+    { __typename?: 'UserResponse' }
+    & RegularUserResponseFragment
+  ) }
+);
+
+export type ForgotPasswordMutationVariables = Exact<{
+  email: Scalars['String'];
+}>;
+
+
+export type ForgotPasswordMutation = (
+  { __typename?: 'Mutation' }
+  & { forgotPassword: (
+    { __typename?: 'ForgotPasswordResponse' }
+    & Pick<ForgotPasswordResponse, 'response'>
+    & { errors?: Maybe<Array<(
+      { __typename?: 'FieldError' }
+      & RegularErrorFragment
+    )>> }
+  ) }
 );
 
 export type LoginMutationVariables = Exact<{
@@ -155,6 +335,63 @@ export type LoginMutation = (
     { __typename?: 'UserResponse' }
     & RegularUserResponseFragment
   )> }
+);
+
+export type UpdateUserMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UserInput;
+}>;
+
+
+export type UpdateUserMutation = (
+  { __typename?: 'Mutation' }
+  & { updateUser: (
+    { __typename?: 'UserResponse' }
+    & RegularUserResponseFragment
+  ) }
+);
+
+export type CoursesQueryVariables = Exact<{
+  page: Scalars['Int'];
+  per_page?: Maybe<Scalars['Int']>;
+}>;
+
+
+export type CoursesQuery = (
+  { __typename?: 'Query' }
+  & { courses: (
+    { __typename?: 'PaginatedCourses' }
+    & Pick<PaginatedCourses, 'prev' | 'totalPages'>
+    & { data: Array<(
+      { __typename?: 'Course' }
+      & Pick<Course, 'id' | 'totalUsers' | 'statusText' | 'hasTestText'>
+      & { courseDetail: (
+        { __typename?: 'CourseDetail' }
+        & Pick<CourseDetail, 'name' | 'coverPhoto'>
+        & { courseSessions: Array<(
+          { __typename?: 'CourseSession' }
+          & Pick<CourseSession, 'name'>
+          & { sessionFiles?: Maybe<Array<(
+            { __typename?: 'SessionFile' }
+            & Pick<SessionFile, 'id' | 'filename'>
+          )>> }
+        )> }
+      ) }
+    )> }
+  ) }
+);
+
+export type GetUserQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetUserQuery = (
+  { __typename?: 'Query' }
+  & { getUser: (
+    { __typename?: 'User' }
+    & RegularUserFragment
+  ) }
 );
 
 export type GetUsersQueryVariables = Exact<{
@@ -202,11 +439,14 @@ export const RegularUserFragmentDoc = gql`
   email
   status
   statusText
+  statusAction
   cellphone
   gender
   genderText
   role
   country
+  createdAt
+  totalCourses
 }
     `;
 export const RegularUserResponseFragmentDoc = gql`
@@ -220,6 +460,15 @@ export const RegularUserResponseFragmentDoc = gql`
 }
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout
+}
+    `;
+
+export function useLogoutMutation() {
+  return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
+};
 export const ChangeUserStatusDocument = gql`
     mutation changeUserStatus($id: String!, $status: Int!) {
   changeUserStatus(id: $id, status: $status)
@@ -228,6 +477,42 @@ export const ChangeUserStatusDocument = gql`
 
 export function useChangeUserStatusMutation() {
   return Urql.useMutation<ChangeUserStatusMutation, ChangeUserStatusMutationVariables>(ChangeUserStatusDocument);
+};
+export const ChangePasswordDocument = gql`
+    mutation changePassword($token: String!, $newPassword: String!) {
+  changePassword(token: $token, newPassword: $newPassword) {
+    ...RegularUserResponse
+  }
+}
+    ${RegularUserResponseFragmentDoc}`;
+
+export function useChangePasswordMutation() {
+  return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
+};
+export const CreateUserDocument = gql`
+    mutation createUser($input: UserInput!) {
+  createUser(input: $input) {
+    ...RegularUserResponse
+  }
+}
+    ${RegularUserResponseFragmentDoc}`;
+
+export function useCreateUserMutation() {
+  return Urql.useMutation<CreateUserMutation, CreateUserMutationVariables>(CreateUserDocument);
+};
+export const ForgotPasswordDocument = gql`
+    mutation forgotPassword($email: String!) {
+  forgotPassword(email: $email) {
+    errors {
+      ...RegularError
+    }
+    response
+  }
+}
+    ${RegularErrorFragmentDoc}`;
+
+export function useForgotPasswordMutation() {
+  return Urql.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(ForgotPasswordDocument);
 };
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
@@ -239,6 +524,57 @@ export const LoginDocument = gql`
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
+export const UpdateUserDocument = gql`
+    mutation updateUser($id: String!, $input: UserInput!) {
+  updateUser(id: $id, input: $input) {
+    ...RegularUserResponse
+  }
+}
+    ${RegularUserResponseFragmentDoc}`;
+
+export function useUpdateUserMutation() {
+  return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument);
+};
+export const CoursesDocument = gql`
+    query courses($page: Int!, $per_page: Int) {
+  courses(page: $page, per_page: $per_page) {
+    prev
+    totalPages
+    data {
+      id
+      totalUsers
+      statusText
+      hasTestText
+      courseDetail {
+        name
+        coverPhoto
+        courseSessions {
+          name
+          sessionFiles {
+            id
+            filename
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useCoursesQuery(options: Omit<Urql.UseQueryArgs<CoursesQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<CoursesQuery>({ query: CoursesDocument, ...options });
+};
+export const GetUserDocument = gql`
+    query getUser($id: String!) {
+  getUser(id: $id) {
+    ...RegularUser
+  }
+}
+    ${RegularUserFragmentDoc}`;
+
+export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetUserQuery>({ query: GetUserDocument, ...options });
 };
 export const GetUsersDocument = gql`
     query getUsers($limit: Int!, $cursor: String, $status: Int, $search: String) {

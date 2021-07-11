@@ -6,14 +6,14 @@ interface SidebarProps {}
 
 export const Sidebar: React.FC<SidebarProps> = ({}) => {
   const intranetItems = [
-    { icon: <Text></Text>, text: "Cursos" },
-    { icon: <Text></Text>, text: "Estudiantes" },
-    { icon: <Text></Text>, text: "Exámenes" },
+    { icon: <Text></Text>, text: "Cursos", route: "/admin/courses" },
+    { icon: <Text></Text>, text: "Estudiantes", route: "/admin/users" },
+    { icon: <Text></Text>, text: "Exámenes", route: "/admin/tests" },
   ];
   const publicItems = [
-    { icon: <Text></Text>, text: "Cursos" },
-    { icon: <Text></Text>, text: "Banners" },
-    { icon: <Text></Text>, text: "Blog" },
+    { icon: <Text></Text>, text: "Cursos", route: "/admin/publicCourses" },
+    { icon: <Text></Text>, text: "Banners", route: "/admin/banners" },
+    { icon: <Text></Text>, text: "Blog", route: "/admin/blog" },
   ];
   return (
     <Flex

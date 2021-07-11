@@ -1,10 +1,9 @@
 import {
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Input,
-  FormErrorMessage,
   Textarea,
-  useMultiStyleConfig,
   useStyleConfig,
 } from "@chakra-ui/react";
 import { useField } from "formik";

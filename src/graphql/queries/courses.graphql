@@ -1,0 +1,23 @@
+query courses($page: Int!, $per_page: Int) {
+  courses(page: $page, per_page: $per_page) {
+    prev
+    totalPages
+    data {
+      id
+      totalUsers
+      statusText
+      hasTestText
+      courseDetail {
+        name
+        coverPhoto
+        courseSessions {
+          name
+          sessionFiles {
+            id
+            filename
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { Box, Link, StackProps, Text, VStack } from "@chakra-ui/react";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 
 interface SidebarItem {
@@ -7,6 +8,7 @@ interface SidebarItem {
     | React.ReactElement<any, string | React.JSXElementConstructor<any>>
     | undefined;
   text: string;
+  route: string;
 }
 type SidebarSectionProps = StackProps & {
   title: string;
@@ -18,10 +20,14 @@ export const SidebarSection: React.FC<SidebarSectionProps> = ({
   items,
   ...props
 }) => {
+  const router = useRouter();
   const listItems = items.map((item) => (
-    <Box key={item.text}>
-      <NextLink href="/admin/users">
+    <Box key={item.text} className="sidebarElement">
+      <NextLink href={item.route}>
         <Text
+          className={
+            router.route.indexOf(item.route) > -1 ? "active" : undefined
+          }
           as={Link}
           fontSize={16}
           opacity="0.5"
