@@ -2,7 +2,12 @@ import {
   Box,
   Button,
   Flex,
+  IconButton,
   Link,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   SimpleGrid,
   Table,
   Tbody,
@@ -20,6 +25,7 @@ import { SkeletonTable } from "../../../components/SkeletonTable";
 import { useCoursesQuery } from "../../../generated/graphql";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 import NextLink from "next/link";
+import { BiDotsVerticalRounded } from "react-icons/bi";
 const Index: React.FC<{}> = ({}) => {
   const [variables, setVariables] = useState({
     page: 1,
@@ -68,6 +74,21 @@ const Index: React.FC<{}> = ({}) => {
                       <Td>{course.totalUsers}</Td>
                       <Td>{course.statusText}</Td>
                       <Td>{course.hasTestText}</Td>
+                      <Td>
+                        <Menu autoSelect={false}>
+                          <MenuButton
+                            as={IconButton}
+                            aria-label="Options"
+                            icon={<BiDotsVerticalRounded />}
+                            variant="ghost"
+                          />
+                          <MenuList>
+                            <NextLink href={`/admin/courses/edit/${course.id}`}>
+                              <MenuItem>Editar</MenuItem>
+                            </NextLink>
+                          </MenuList>
+                        </Menu>
+                      </Td>
                     </Tr>
                   );
                 })

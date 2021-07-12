@@ -5,7 +5,7 @@ import { AppProps } from "next/app";
 import React from "react";
 import { DarkModeSwitch } from "../components/DarkModeSwitch";
 import { AdminLayout } from "../components/layouts/AdminLayout";
-import "../styles/global.css";
+import "../styles/global.scss";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 

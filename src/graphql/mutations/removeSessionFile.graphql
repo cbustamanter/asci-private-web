@@ -1,0 +1,3 @@
+mutation removeSessionFile($id: String!, $courseSessionId: String!) {
+  removeSessionFile(id: $id, courseSessionId: $courseSessionId)
+}

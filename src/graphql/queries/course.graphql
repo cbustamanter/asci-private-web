@@ -1,0 +1,26 @@
+query course($id: String!) {
+  course(id: $id) {
+    id
+    hasTest
+    courseDetail {
+      id
+      name
+      description
+      coverPhoto
+      classUrl
+      startDate
+      endDate
+      courseSessions {
+        id
+        name
+        startTime
+        endTime
+        recordingUrl
+        sessionFiles {
+          id
+          filename
+        }
+      }
+    }
+  }
+}

@@ -12,6 +12,8 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
+  DateTime: any;
   /** The `Upload` scalar type represents a file upload. */
   Upload: any;
 };
@@ -38,8 +40,8 @@ export type CourseDetail = {
   name: Scalars['String'];
   description: Scalars['String'];
   coverPhoto: Scalars['String'];
-  startDate: Scalars['String'];
-  endDate: Scalars['String'];
+  startDate: Scalars['DateTime'];
+  endDate: Scalars['DateTime'];
   classUrl: Scalars['String'];
   courseSessions: Array<CourseSession>;
 };
@@ -50,12 +52,13 @@ export type CourseSession = {
   updatedAt: Scalars['String'];
   id: Scalars['String'];
   name: Scalars['String'];
-  startTime: Scalars['String'];
-  endTime: Scalars['String'];
+  startTime: Scalars['DateTime'];
+  endTime: Scalars['DateTime'];
   recordingUrl: Scalars['String'];
   courseDetail: CourseDetail;
   sessionFiles?: Maybe<Array<SessionFile>>;
 };
+
 
 export type FieldError = {
   __typename?: 'FieldError';
@@ -73,16 +76,16 @@ export type InputCourseDetail = {
   hasTest: Scalars['Boolean'];
   name: Scalars['String'];
   description: Scalars['String'];
-  startDate: Scalars['String'];
-  endDate: Scalars['String'];
+  startDate: Scalars['DateTime'];
+  endDate: Scalars['DateTime'];
   classUrl: Scalars['String'];
   coverPhoto: Scalars['Upload'];
 };
 
 export type InputCourseSession = {
   name: Scalars['String'];
-  startTime: Scalars['String'];
-  endTime: Scalars['String'];
+  startTime: Scalars['DateTime'];
+  endTime: Scalars['DateTime'];
   recordingUrl: Scalars['String'];
   files?: Maybe<Array<Scalars['Upload']>>;
 };
@@ -90,6 +93,7 @@ export type InputCourseSession = {
 export type Mutation = {
   __typename?: 'Mutation';
   createCourse: Course;
+  removeSessionFile: Scalars['Boolean'];
   singleUpload: UploadedFileResponse;
   createUser: UserResponse;
   login?: Maybe<UserResponse>;
@@ -104,6 +108,12 @@ export type Mutation = {
 export type MutationCreateCourseArgs = {
   courseSessions: Array<InputCourseSession>;
   courseDetail: InputCourseDetail;
+};
+
+
+export type MutationRemoveSessionFileArgs = {
+  courseSessionId: Scalars['String'];
+  id: Scalars['String'];
 };
 
 
@@ -161,6 +171,7 @@ export type PaginatedUsers = {
 export type Query = {
   __typename?: 'Query';
   courses: PaginatedCourses;
+  course?: Maybe<Course>;
   me?: Maybe<User>;
   getUsers: PaginatedUsers;
   getUser: User;
@@ -170,6 +181,11 @@ export type Query = {
 export type QueryCoursesArgs = {
   per_page?: Maybe<Scalars['Int']>;
   page: Scalars['Int'];
+};
+
+
+export type QueryCourseArgs = {
+  id: Scalars['String'];
 };
 
 
@@ -293,6 +309,32 @@ export type ChangePasswordMutation = (
   ) }
 );
 
+export type CreateCourseMutationVariables = Exact<{
+  courseDetail: InputCourseDetail;
+  courseSessions: Array<InputCourseSession> | InputCourseSession;
+}>;
+
+
+export type CreateCourseMutation = (
+  { __typename?: 'Mutation' }
+  & { createCourse: (
+    { __typename?: 'Course' }
+    & Pick<Course, 'status'>
+    & { courseDetail: (
+      { __typename?: 'CourseDetail' }
+      & Pick<CourseDetail, 'coverPhoto' | 'name'>
+      & { courseSessions: Array<(
+        { __typename?: 'CourseSession' }
+        & Pick<CourseSession, 'name'>
+        & { sessionFiles?: Maybe<Array<(
+          { __typename?: 'SessionFile' }
+          & Pick<SessionFile, 'filename'>
+        )>> }
+      )> }
+    ) }
+  ) }
+);
+
 export type CreateUserMutationVariables = Exact<{
   input: UserInput;
 }>;
@@ -337,6 +379,17 @@ export type LoginMutation = (
   )> }
 );
 
+export type RemoveSessionFileMutationVariables = Exact<{
+  id: Scalars['String'];
+  courseSessionId: Scalars['String'];
+}>;
+
+
+export type RemoveSessionFileMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'removeSessionFile'>
+);
+
 export type UpdateUserMutationVariables = Exact<{
   id: Scalars['String'];
   input: UserInput;
@@ -349,6 +402,31 @@ export type UpdateUserMutation = (
     { __typename?: 'UserResponse' }
     & RegularUserResponseFragment
   ) }
+);
+
+export type CourseQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type CourseQuery = (
+  { __typename?: 'Query' }
+  & { course?: Maybe<(
+    { __typename?: 'Course' }
+    & Pick<Course, 'id' | 'hasTest'>
+    & { courseDetail: (
+      { __typename?: 'CourseDetail' }
+      & Pick<CourseDetail, 'id' | 'name' | 'description' | 'coverPhoto' | 'classUrl' | 'startDate' | 'endDate'>
+      & { courseSessions: Array<(
+        { __typename?: 'CourseSession' }
+        & Pick<CourseSession, 'id' | 'name' | 'startTime' | 'endTime' | 'recordingUrl'>
+        & { sessionFiles?: Maybe<Array<(
+          { __typename?: 'SessionFile' }
+          & Pick<SessionFile, 'id' | 'filename'>
+        )>> }
+      )> }
+    ) }
+  )> }
 );
 
 export type CoursesQueryVariables = Exact<{
@@ -489,6 +567,27 @@ export const ChangePasswordDocument = gql`
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
 };
+export const CreateCourseDocument = gql`
+    mutation createCourse($courseDetail: InputCourseDetail!, $courseSessions: [InputCourseSession!]!) {
+  createCourse(courseDetail: $courseDetail, courseSessions: $courseSessions) {
+    status
+    courseDetail {
+      coverPhoto
+      name
+      courseSessions {
+        name
+        sessionFiles {
+          filename
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useCreateCourseMutation() {
+  return Urql.useMutation<CreateCourseMutation, CreateCourseMutationVariables>(CreateCourseDocument);
+};
 export const CreateUserDocument = gql`
     mutation createUser($input: UserInput!) {
   createUser(input: $input) {
@@ -525,6 +624,15 @@ export const LoginDocument = gql`
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
 };
+export const RemoveSessionFileDocument = gql`
+    mutation removeSessionFile($id: String!, $courseSessionId: String!) {
+  removeSessionFile(id: $id, courseSessionId: $courseSessionId)
+}
+    `;
+
+export function useRemoveSessionFileMutation() {
+  return Urql.useMutation<RemoveSessionFileMutation, RemoveSessionFileMutationVariables>(RemoveSessionFileDocument);
+};
 export const UpdateUserDocument = gql`
     mutation updateUser($id: String!, $input: UserInput!) {
   updateUser(id: $id, input: $input) {
@@ -535,6 +643,38 @@ export const UpdateUserDocument = gql`
 
 export function useUpdateUserMutation() {
   return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument);
+};
+export const CourseDocument = gql`
+    query course($id: String!) {
+  course(id: $id) {
+    id
+    hasTest
+    courseDetail {
+      id
+      name
+      description
+      coverPhoto
+      classUrl
+      startDate
+      endDate
+      courseSessions {
+        id
+        name
+        startTime
+        endTime
+        recordingUrl
+        sessionFiles {
+          id
+          filename
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useCourseQuery(options: Omit<Urql.UseQueryArgs<CourseQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<CourseQuery>({ query: CourseDocument, ...options });
 };
 export const CoursesDocument = gql`
     query courses($page: Int!, $per_page: Int) {
