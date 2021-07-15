@@ -7,13 +7,11 @@ import {
   Switch,
   Text,
   useColorModeValue,
-  Image,
 } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
+import { FieldArray, Form, Formik, useField } from "formik";
 import router from "next/router";
 import React, { useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
-import { DropEvent } from "react-dropzone";
 import { AddSessionFiles } from "../../../components/AddSessionFiles";
 import { SectionHeading } from "../../../components/admin/SectionHeading";
 import { Wrapper } from "../../../components/admin/Wrapper";
@@ -21,62 +19,22 @@ import { DatePickerField } from "../../../components/DatePickerField";
 import { InputField } from "../../../components/InputField";
 import { RegularDropzone } from "../../../components/RegularDropzone";
 import { useCreateCourseMutation } from "../../../generated/graphql";
-import {
-  CourseSessions,
-  CourseType,
-  SessionFilesType,
-  SessionTimesType,
-} from "../../../types/courseTypes";
+import { CourseSessions } from "../../../types/courseTypes";
 
 const New: React.FC<{}> = ({}) => {
-  const sessionObject = {
+  const sessionObject: CourseSessions = {
     name: "",
     startTime: new Date(),
     endTime: new Date(),
     recordingUrl: "",
+    files: undefined,
   };
-  const [sessions, setSessions] = useState<CourseSessions[]>([]);
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
   const [hasTest, setHasTest] = useState(true);
   const [coverPhoto, setCoverPhoto] = useState<File>();
   const [, createCourse] = useCreateCourseMutation();
   const bg = useColorModeValue("#F7F9FB", "gray.800");
   const filesBg = useColorModeValue("#E6EAED", "gray.600");
-  const handleChangeInput = (
-    index: number,
-    event:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const values = [...sessions];
-    const fieldName = event.target.name as CourseType;
-    values[index][fieldName] = event.target.value;
-    setSessions(values);
-  };
-  const addSession = () => {
-    setSessions([...sessions, sessionObject]);
-  };
-  const removeSession = (idx: number) => {
-    const values = [...sessions];
-    values.splice(idx, 1);
-    setSessions(values);
-  };
-  const uploadFiles = (files: File[], event: DropEvent, idx: number) => {
-    const values = [...sessions];
-    const element = (event.target as HTMLInputElement).name as SessionFilesType;
-    values[idx][element] = files;
-    setSessions(values);
-  };
-  const handleChangeTime = (
-    date: Date,
-    elementName: SessionTimesType,
-    idx: number
-  ) => {
-    const values = [...sessions];
-    values[idx][elementName] = date;
-    setSessions(values);
-  };
+
   const handleCoverPhoto = (files: File[]) => {
     setCoverPhoto(files[0]);
   };
@@ -88,11 +46,15 @@ const New: React.FC<{}> = ({}) => {
           name: "",
           description: "",
           classUrl: "",
-          startDate,
-          endDate,
+          startDate: new Date(),
+          endDate: new Date(),
+          courseSessions: [sessionObject],
         }}
         onSubmit={async (values, { setErrors }) => {
-          console.log(sessions);
+          values.courseSessions.map((t) => {
+            t.files = t.files?.flat();
+            return t;
+          });
           const response = await createCourse({
             courseDetail: {
               hasTest,
@@ -103,12 +65,17 @@ const New: React.FC<{}> = ({}) => {
               startDate: values.startDate,
               endDate: values.endDate,
             },
-            courseSessions: sessions,
+            courseSessions: values.courseSessions,
           });
-          console.log(response.error?.message);
+          if (!response.error) {
+            router.replace("/admin/courses");
+          } else {
+            console.log(values.courseSessions);
+            console.log(response.error);
+          }
         }}
       >
-        {({ isSubmitting }) => (
+        {({ values, isSubmitting }) => (
           <Form>
             <Flex flexDirection="column" maxWidth="600px" width="100%" mt={4}>
               <SimpleGrid columns={1} spacing={4}>
@@ -140,112 +107,94 @@ const New: React.FC<{}> = ({}) => {
                   <DatePickerField
                     name="startDate"
                     label="Fecha de Inicio"
-                    selectedDate={startDate}
                     minDate={new Date()}
-                    onChange={(d) => setStartDate(d as Date)}
                     showPopperArrow={true}
                   />
                   <DatePickerField
                     name="endDate"
                     label="Fecha de Fin"
-                    selectedDate={endDate}
-                    minDate={startDate}
-                    onChange={(d) => setEndDate(d as Date)}
+                    minDate={values.startDate}
                     showPopperArrow={true}
                   />
                 </SimpleGrid>
               </SimpleGrid>
               <SimpleGrid columns={1} spacing={4} mt={4}>
                 <Heading size="md">Sesiones del curso</Heading>
-                {sessions?.map((v, idx) => (
-                  <SimpleGrid columns={1} spacing={4} key={idx}>
-                    <Flex key={idx}>
-                      <Heading fontSize="16px">Sesión {idx + 1}</Heading>
+                <FieldArray name="courseSessions">
+                  {({ push, remove }) => (
+                    <>
+                      {values.courseSessions.map((v, idx) => {
+                        return (
+                          <SimpleGrid columns={1} spacing={4} key={idx}>
+                            <Flex key={idx}>
+                              <Heading fontSize="16px">
+                                Sesión {idx + 1}
+                              </Heading>
+                              <Button
+                                ml="auto"
+                                variant="link"
+                                colorScheme="red"
+                                onClick={() => remove(idx)}
+                              >
+                                Eliminar sesión
+                              </Button>
+                            </Flex>
+                            <SimpleGrid
+                              columns={1}
+                              spacing={4}
+                              p={4}
+                              backgroundColor={bg}
+                              borderRadius="lg"
+                              border="1px solid"
+                              borderColor="#D4D8DD"
+                            >
+                              <InputField
+                                label="Nombre de la sesión"
+                                name={`courseSessions.${idx}.name`}
+                                placeholder="Nombre de la sesión"
+                              />
+                              <SimpleGrid columns={2} spacing={4}>
+                                <DatePickerField
+                                  name={`courseSessions.${idx}.startTime`}
+                                  label="Hora Inicio"
+                                  dateFormat="h:mm aa"
+                                  showTimeSelect
+                                  showTimeSelectOnly
+                                  showPopperArrow={true}
+                                />
+                                <DatePickerField
+                                  name={`courseSessions.${idx}.endTime`}
+                                  label="Hora Fin"
+                                  dateFormat="h:mm aa"
+                                  showTimeSelect
+                                  showTimeSelectOnly
+                                  showPopperArrow={true}
+                                />
+                              </SimpleGrid>
+                              <InputField
+                                label="URL de la grabación"
+                                name={`courseSessions.${idx}.recordingUrl`}
+                                placeholder="URL de la grabación"
+                              />
+                              <Flex flexDirection="column">
+                                <DidacticMaterial
+                                  name={`courseSessions.${idx}.files`}
+                                />
+                              </Flex>
+                            </SimpleGrid>
+                          </SimpleGrid>
+                        );
+                      })}
                       <Button
-                        ml="auto"
                         variant="link"
-                        colorScheme="red"
-                        onClick={() => removeSession(idx)}
+                        width="fit-content"
+                        onClick={() => push(sessionObject)}
                       >
-                        Eliminar sesión
+                        + Añadir sesión
                       </Button>
-                    </Flex>
-                    <SimpleGrid
-                      columns={1}
-                      spacing={4}
-                      p={4}
-                      backgroundColor={bg}
-                      borderRadius="lg"
-                      border="1px solid"
-                      borderColor="#D4D8DD"
-                    >
-                      <InputField
-                        label="Nombre de la sesión"
-                        name="name"
-                        value={v.name}
-                        placeholder="Nombre de la sesión"
-                        onChange={(event) => handleChangeInput(idx, event)}
-                      />
-                      <SimpleGrid columns={2} spacing={4}>
-                        <DatePickerField
-                          name="startTime"
-                          label="Hora Inicio"
-                          selectedDate={v.startTime}
-                          dateFormat="h:mm aa"
-                          showTimeSelect
-                          showTimeSelectOnly
-                          onChange={(d) =>
-                            handleChangeTime(d as Date, "startTime", idx)
-                          }
-                          showPopperArrow={true}
-                        />
-                        <DatePickerField
-                          name="endTime"
-                          label="Hora Fin"
-                          selectedDate={v.endTime}
-                          dateFormat="h:mm aa"
-                          showTimeSelect
-                          showTimeSelectOnly
-                          onChange={(d) =>
-                            handleChangeTime(d as Date, "endTime", idx)
-                          }
-                          showPopperArrow={true}
-                        />
-                      </SimpleGrid>
-                      <InputField
-                        label="URL de la grabación"
-                        name="recordingUrl"
-                        value={v.recordingUrl}
-                        placeholder="URL de la grabación"
-                        onChange={(event) => handleChangeInput(idx, event)}
-                      />
-                      <Flex flexDirection="column">
-                        {v.files?.map((v) => (
-                          <Box
-                            key={v.name}
-                            backgroundColor={filesBg}
-                            p={2}
-                            mt={3}
-                          >
-                            {v.name}
-                          </Box>
-                        ))}
-                        <AddSessionFiles
-                          complete={uploadFiles}
-                          idx={idx}
-                          name="files"
-                        />
-                      </Flex>
-                    </SimpleGrid>
-                  </SimpleGrid>
-                ))}
-                <Button
-                  variant="link"
-                  width="fit-content"
-                  onClick={() => addSession()}
-                >
-                  + Añadir sesión
-                </Button>
+                    </>
+                  )}
+                </FieldArray>
               </SimpleGrid>
               <Flex alignItems="center" mt={4}>
                 <Heading size="md">Examen del curso</Heading>
@@ -288,6 +237,40 @@ const New: React.FC<{}> = ({}) => {
         )}
       </Formik>
     </Wrapper>
+  );
+};
+
+interface DidacticMaterial {
+  name: string;
+}
+
+//TODO: TYPE THIS
+export const DidacticMaterial: React.FC<DidacticMaterial> = ({
+  children,
+  ...props
+}) => {
+  const [field] = useField(props);
+  const filesBg = useColorModeValue("#E6EAED", "gray.600");
+  const value = field.value;
+  return (
+    <FieldArray name={`${field.name}`}>
+      {({ push }) => (
+        <>
+          {!value?.length
+            ? null
+            : value?.map((v: []) => {
+                if (v.length) {
+                  return v.map((file: any) => (
+                    <Box key={file.name} backgroundColor={filesBg} p={2} mt={3}>
+                      {file.name}
+                    </Box>
+                  ));
+                }
+              })}
+          <AddSessionFiles complete={(test) => push(test)} />
+        </>
+      )}
+    </FieldArray>
   );
 };
 

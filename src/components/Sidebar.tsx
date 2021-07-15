@@ -1,4 +1,4 @@
-import { Box, Flex, StackDivider, Text, VStack } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import React from "react";
 import { SidebarSection } from "./SidebarSection";
 
@@ -6,8 +6,8 @@ interface SidebarProps {}
 
 export const Sidebar: React.FC<SidebarProps> = ({}) => {
   const intranetItems = [
-    { icon: <Text></Text>, text: "Cursos", route: "/admin/courses" },
     { icon: <Text></Text>, text: "Estudiantes", route: "/admin/users" },
+    { icon: <Text></Text>, text: "Cursos", route: "/admin/courses" },
     { icon: <Text></Text>, text: "Exámenes", route: "/admin/tests" },
   ];
   const publicItems = [

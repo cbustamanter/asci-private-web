@@ -30,3 +30,7 @@ export type CourseSessionGraph = Array<
       >;
     }
 >;
+export type SessionObject = Pick<
+  CourseSession,
+  "id" | "name" | "startTime" | "endTime" | "recordingUrl"
+>;

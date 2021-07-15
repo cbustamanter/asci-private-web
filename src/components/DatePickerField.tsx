@@ -1,14 +1,12 @@
 import { FormControl, FormErrorMessage, FormLabel } from "@chakra-ui/react";
 import es from "date-fns/locale/es";
-import { useField } from "formik";
+import { useField, useFormikContext } from "formik";
 import React, { HTMLAttributes } from "react";
 import ReactDatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 interface Props {
   isClearable?: boolean;
-  onChange: (date: Date) => any;
-  selectedDate: Date | undefined;
   showPopperArrow?: boolean;
   showTimeSelect?: boolean | undefined;
   showTimeSelectOnly?: boolean | undefined;
@@ -22,7 +20,6 @@ interface Props {
 
 registerLocale("es", es);
 export const DatePickerField: React.FC<Props & HTMLAttributes<HTMLElement>> = ({
-  selectedDate,
   onChange,
   isClearable = false,
   showPopperArrow = false,
@@ -36,14 +33,17 @@ export const DatePickerField: React.FC<Props & HTMLAttributes<HTMLElement>> = ({
   dateFormat,
   ...props
 }) => {
+  const { setFieldValue } = useFormikContext();
   const [field, { error }] = useField(props);
   return (
     <FormControl isInvalid={!!error}>
       <FormLabel htmlFor={field.name}>{label}</FormLabel>
       <ReactDatePicker
-        selected={selectedDate}
         locale="es"
-        onChange={onChange}
+        selected={(field.value && new Date(field.value)) || null}
+        onChange={(val) => {
+          setFieldValue(field.name, val);
+        }}
         isClearable={isClearable}
         dateFormat={dateFormat}
         minTime={minTime}

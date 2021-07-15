@@ -3,23 +3,21 @@ import React from "react";
 import Dropzone, { DropEvent } from "react-dropzone";
 
 interface AddSessionFilesProps {
-  complete: (files: File[], event: DropEvent, idx: number) => void;
+  complete: (files: File[], event: DropEvent) => void;
   name?: string;
-  idx: number;
 }
 
 export const AddSessionFiles: React.FC<AddSessionFilesProps> = ({
   complete,
   name,
-  idx,
 }) => {
   return (
     <Dropzone
-      onDrop={(acceptedFiles, _, event) => complete(acceptedFiles, event, idx)}
+      onDrop={(acceptedFiles, _, event) => complete(acceptedFiles, event)}
     >
       {({ getRootProps, getInputProps }) => (
         <div {...getRootProps()}>
-          <input {...getInputProps()} name={name} />
+          <input {...getInputProps()} />
           <Button variant="link" width="fit-content" mt={4}>
             Agregar material didáctico
           </Button>

@@ -94,7 +94,6 @@ export type Mutation = {
   __typename?: 'Mutation';
   createCourse: Course;
   removeSessionFile: Scalars['Boolean'];
-  singleUpload: UploadedFileResponse;
   createUser: UserResponse;
   login?: Maybe<UserResponse>;
   changeUserStatus: Scalars['Boolean'];
@@ -114,11 +113,6 @@ export type MutationCreateCourseArgs = {
 export type MutationRemoveSessionFileArgs = {
   courseSessionId: Scalars['String'];
   id: Scalars['String'];
-};
-
-
-export type MutationSingleUploadArgs = {
-  file: Scalars['Upload'];
 };
 
 
@@ -171,7 +165,7 @@ export type PaginatedUsers = {
 export type Query = {
   __typename?: 'Query';
   courses: PaginatedCourses;
-  course?: Maybe<Course>;
+  course: Course;
   me?: Maybe<User>;
   getUsers: PaginatedUsers;
   getUser: User;
@@ -210,14 +204,6 @@ export type SessionFile = {
   courseSession: CourseSession;
 };
 
-
-export type UploadedFileResponse = {
-  __typename?: 'UploadedFileResponse';
-  filename: Scalars['String'];
-  mimetype: Scalars['String'];
-  encoding: Scalars['String'];
-  url: Scalars['String'];
-};
 
 export type User = {
   __typename?: 'User';
@@ -411,7 +397,7 @@ export type CourseQueryVariables = Exact<{
 
 export type CourseQuery = (
   { __typename?: 'Query' }
-  & { course?: Maybe<(
+  & { course: (
     { __typename?: 'Course' }
     & Pick<Course, 'id' | 'hasTest'>
     & { courseDetail: (
@@ -426,7 +412,7 @@ export type CourseQuery = (
         )>> }
       )> }
     ) }
-  )> }
+  ) }
 );
 
 export type CoursesQueryVariables = Exact<{

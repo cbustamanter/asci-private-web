@@ -29,9 +29,10 @@ export const RegularDropzone: React.FC<RegularDropzoneProps> = ({
             alignItems="center"
             border="dashed 1px"
             borderColor="gray.400"
+            cursor="pointer"
             py={6}
           >
-            <Icon as={BiPhotoAlbum} fontSize="xxx-large" />
+            <Icon as={BiPhotoAlbum} color="gray.400" fontSize="xxx-large" />
             <Text>Agrega una portada para el curso</Text>
             <Text color="gray.500">Formato recomendado: 580x278 px</Text>
             <Text color="gray.500">Tamaño máximo: 5 mb</Text>
