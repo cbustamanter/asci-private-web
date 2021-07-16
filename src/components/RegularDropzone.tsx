@@ -8,7 +8,7 @@ interface RegularDropzoneProps {
   name?: string;
   allowMultiple?: boolean;
 }
-
+//TODO: Show error that indicates uploaded file surpass maxfile size
 export const RegularDropzone: React.FC<RegularDropzoneProps> = ({
   complete,
   name,

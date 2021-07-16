@@ -10,7 +10,7 @@ const Index: React.FC<{}> = ({}) => {
   useIsAdm();
   const router = useRouter();
   useEffect(() => {
-    router.replace("/admin/users");
+    router.replace("/admin/courses");
   }, [router]);
 
   return <></>;

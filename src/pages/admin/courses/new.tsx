@@ -8,11 +8,11 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { FieldArray, Form, Formik, useField } from "formik";
+import { FieldArray, Form, Formik } from "formik";
+import { withUrqlClient } from "next-urql";
 import router from "next/router";
-import React, { useState } from "react";
+import React from "react";
 import "react-datepicker/dist/react-datepicker.css";
-import { AddSessionFiles } from "../../../components/AddSessionFiles";
 import { SectionHeading } from "../../../components/admin/SectionHeading";
 import { Wrapper } from "../../../components/admin/Wrapper";
 import { DatePickerField } from "../../../components/DatePickerField";
@@ -20,24 +20,22 @@ import { InputField } from "../../../components/InputField";
 import { RegularDropzone } from "../../../components/RegularDropzone";
 import { useCreateCourseMutation } from "../../../generated/graphql";
 import { CourseSessions } from "../../../types/courseTypes";
+import { createUrqlClient } from "../../../utils/createUrqlClient";
+import { DidacticMaterial } from "../../../components/DidacticMaterial";
+
+export const sessionObject: CourseSessions = {
+  name: "",
+  startTime: new Date(),
+  endTime: new Date(),
+  recordingUrl: "",
+  files: undefined,
+};
 
 const New: React.FC<{}> = ({}) => {
-  const sessionObject: CourseSessions = {
-    name: "",
-    startTime: new Date(),
-    endTime: new Date(),
-    recordingUrl: "",
-    files: undefined,
-  };
-  const [hasTest, setHasTest] = useState(true);
-  const [coverPhoto, setCoverPhoto] = useState<File>();
   const [, createCourse] = useCreateCourseMutation();
   const bg = useColorModeValue("#F7F9FB", "gray.800");
   const filesBg = useColorModeValue("#E6EAED", "gray.600");
 
-  const handleCoverPhoto = (files: File[]) => {
-    setCoverPhoto(files[0]);
-  };
   return (
     <Wrapper>
       <SectionHeading title="Crear curso" />
@@ -49,17 +47,15 @@ const New: React.FC<{}> = ({}) => {
           startDate: new Date(),
           endDate: new Date(),
           courseSessions: [sessionObject],
+          hasTest: true,
+          coverPhoto: {} as File,
         }}
         onSubmit={async (values, { setErrors }) => {
-          values.courseSessions.map((t) => {
-            t.files = t.files?.flat();
-            return t;
-          });
           const response = await createCourse({
             courseDetail: {
-              hasTest,
+              hasTest: values.hasTest,
               classUrl: values.classUrl,
-              coverPhoto,
+              coverPhoto: values.coverPhoto,
               description: values.description,
               name: values.name,
               startDate: values.startDate,
@@ -75,7 +71,7 @@ const New: React.FC<{}> = ({}) => {
           }
         }}
       >
-        {({ values, isSubmitting }) => (
+        {({ values, isSubmitting, setFieldValue }) => (
           <Form>
             <Flex flexDirection="column" maxWidth="600px" width="100%" mt={4}>
               <SimpleGrid columns={1} spacing={4}>
@@ -96,10 +92,12 @@ const New: React.FC<{}> = ({}) => {
                   name="description"
                   placeholder="Ingresa una descripción"
                 />
-                <RegularDropzone complete={handleCoverPhoto} />
-                {coverPhoto ? (
+                <RegularDropzone
+                  complete={(file) => setFieldValue("coverPhoto", file[0])}
+                />
+                {values.coverPhoto.name ? (
                   <Box p={4} bg={filesBg}>
-                    {coverPhoto.name}
+                    {values.coverPhoto.name}
                   </Box>
                 ) : null}
 
@@ -153,21 +151,19 @@ const New: React.FC<{}> = ({}) => {
                                 name={`courseSessions.${idx}.name`}
                                 placeholder="Nombre de la sesión"
                               />
-                              <SimpleGrid columns={2} spacing={4}>
+                              <SimpleGrid columns={1} spacing={4}>
                                 <DatePickerField
                                   name={`courseSessions.${idx}.startTime`}
                                   label="Hora Inicio"
-                                  dateFormat="h:mm aa"
+                                  dateFormat="yyyy-MM-d h:mm aa"
                                   showTimeSelect
-                                  showTimeSelectOnly
                                   showPopperArrow={true}
                                 />
                                 <DatePickerField
                                   name={`courseSessions.${idx}.endTime`}
                                   label="Hora Fin"
-                                  dateFormat="h:mm aa"
+                                  dateFormat="yyyy-MM-d h:mm aa"
                                   showTimeSelect
-                                  showTimeSelectOnly
                                   showPopperArrow={true}
                                 />
                               </SimpleGrid>
@@ -201,8 +197,9 @@ const New: React.FC<{}> = ({}) => {
                 <Switch
                   size="md"
                   ml={4}
-                  isChecked={hasTest}
-                  onChange={() => setHasTest(!hasTest)}
+                  name="hasTest"
+                  isChecked={values.hasTest}
+                  onChange={() => setFieldValue("hasTest", !values.hasTest)}
                 />
               </Flex>
               <Text
@@ -240,38 +237,4 @@ const New: React.FC<{}> = ({}) => {
   );
 };
 
-interface DidacticMaterial {
-  name: string;
-}
-
-//TODO: TYPE THIS
-export const DidacticMaterial: React.FC<DidacticMaterial> = ({
-  children,
-  ...props
-}) => {
-  const [field] = useField(props);
-  const filesBg = useColorModeValue("#E6EAED", "gray.600");
-  const value = field.value;
-  return (
-    <FieldArray name={`${field.name}`}>
-      {({ push }) => (
-        <>
-          {!value?.length
-            ? null
-            : value?.map((v: []) => {
-                if (v.length) {
-                  return v.map((file: any) => (
-                    <Box key={file.name} backgroundColor={filesBg} p={2} mt={3}>
-                      {file.name}
-                    </Box>
-                  ));
-                }
-              })}
-          <AddSessionFiles complete={(test) => push(test)} />
-        </>
-      )}
-    </FieldArray>
-  );
-};
-
-export default New;
+export default withUrqlClient(createUrqlClient)(New);

@@ -5,7 +5,7 @@ interface WrapperProps {}
 
 export const Wrapper: React.FC<WrapperProps> = ({ children }) => {
   return (
-    <Flex px={[8, 10]} py={[4, 10]} flexDirection="column">
+    <Flex px={[8, 10]} py={[4, 10]} flexDirection="column" position="relative">
       {children}
     </Flex>
   );
