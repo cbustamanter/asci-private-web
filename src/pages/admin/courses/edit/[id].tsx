@@ -3,7 +3,6 @@ import {
   Button,
   Flex,
   Heading,
-  Icon,
   Link,
   SimpleGrid,
   Switch,
@@ -13,26 +12,20 @@ import {
 import { FieldArray, Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
 import router from "next/router";
-import React, { useState } from "react";
-import { TiDelete } from "react-icons/ti";
-import { AddSessionFiles } from "../../../../components/AddSessionFiles";
+import React from "react";
 import { SectionHeading } from "../../../../components/admin/SectionHeading";
 import { Wrapper } from "../../../../components/admin/Wrapper";
 import { DatePickerField } from "../../../../components/DatePickerField";
+import { DidacticMaterial } from "../../../../components/DidacticMaterial";
 import { InputField } from "../../../../components/InputField";
 import { RegularDropzone } from "../../../../components/RegularDropzone";
 import { SkeletonPage } from "../../../../components/SkeletonPage";
-import {
-  useCourseQuery,
-  useRemoveSessionFileMutation,
-} from "../../../../generated/graphql";
+import { useCourseQuery } from "../../../../generated/graphql";
 import { S3_URL } from "../../../../utils/constant";
 import { createUrqlClient } from "../../../../utils/createUrqlClient";
 import { isServer } from "../../../../utils/isServer";
 import { useGetStringId } from "../../../../utils/useGetStringId";
 import { sessionObject } from "../new";
-import { parseISO } from "date-fns";
-import { DidacticMaterial } from "../../../../components/DidacticMaterial";
 
 interface IFiles {
   filename?: string;
@@ -57,35 +50,10 @@ const EditCourse: React.FC<{}> = ({}) => {
     pause: isServer(),
     variables: { id },
   });
-  const [, removeSessionFile] = useRemoveSessionFileMutation();
 
   const bg = useColorModeValue("#F7F9FB", "gray.800");
   const filesBg = useColorModeValue("#E6EAED", "gray.600");
-  const handleCoverPhoto = (files: File[]) => {};
-  const uploadFiles = (files: File[]) => {};
-  //   useEffect(() => {
-  //   if (!fetching && data) {
-  //     const sessionsData = data.course.courseDetail.courseSessions;
-  //     if (sessionsData) {
-  //       setSessions(sessionsData);
-  //     }
-  //     setHasTest(data.course.hasTest);
-  //     setStartDate(new Date(data.course.courseDetail.startDate));
-  //     setEndDate(new Date(data.course.courseDetail.endDate));
-  //     const lanew = data.course.courseDetail.courseSessions.map(
-  //       (s) =>
-  //         ({
-  //           id: s.id,
-  //           name: s.name,
-  //           recordingUrl: s.recordingUrl,
-  //           startTime: new Date(s.startTime),
-  //           endTime: new Date(s.endTime),
-  //           oldFiles: s.sessionFiles,
-  //         } as Sessions)
-  //     );
-  //     setNewSession(lanew);
-  //   }
-  // }, [data]);
+
   return (
     <Wrapper>
       <SectionHeading title="Editar curso" />
@@ -100,9 +68,9 @@ const EditCourse: React.FC<{}> = ({}) => {
             classUrl: data?.course.courseDetail.classUrl,
             startDate: data?.course.courseDetail.startDate,
             endDate: data?.course.courseDetail.endDate,
-            hasTest: true,
+            hasTest: data?.course.hasTest,
             courseSession: data?.course.courseDetail.courseSessions || [],
-            coverPhoto: data?.course.courseDetail.coverPhoto,
+            coverPhoto: data?.course.courseDetail.coverPhoto || ({} as File),
           }}
           onSubmit={async (values, { setErrors }) => {
             console.log(values);
@@ -141,13 +109,21 @@ const EditCourse: React.FC<{}> = ({}) => {
                     name="description"
                     placeholder="Ingresa una descripción"
                   />
-                  <RegularDropzone complete={handleCoverPhoto} />
-                  <Box backgroundColor={filesBg} p={2}>
-                    <Link href={`${S3_URL}${values.coverPhoto}`} isExternal>
-                      {values.coverPhoto?.replace("/cover-photos/", "")}
-                    </Link>
-                  </Box>
-
+                  <RegularDropzone
+                    complete={(files) => setFieldValue("coverPhoto", files[0])}
+                  />
+                  {values.coverPhoto && typeof values.coverPhoto === "string" && (
+                    <Box backgroundColor={filesBg} p={2}>
+                      <Link href={`${S3_URL}${values.coverPhoto}`} isExternal>
+                        {values.coverPhoto?.replace("/cover-photos/", "")}
+                      </Link>
+                    </Box>
+                  )}
+                  {values.coverPhoto && typeof values.coverPhoto !== "string" && (
+                    <Box backgroundColor={filesBg} p={2}>
+                      {values.coverPhoto.name}
+                    </Box>
+                  )}
                   <SimpleGrid columns={2} spacing={4}>
                     <DatePickerField
                       name="startDate"
@@ -165,7 +141,6 @@ const EditCourse: React.FC<{}> = ({}) => {
                 </SimpleGrid>
                 <SimpleGrid columns={1} spacing={4} mt={4}>
                   <Heading size="md">Sesiones del curso</Heading>
-                  {JSON.stringify(values.courseSession)}
                   <FieldArray name="courseSession">
                     {({ push, remove }) => (
                       <>
@@ -199,88 +174,29 @@ const EditCourse: React.FC<{}> = ({}) => {
                                   name={`courseSession.${idx}.name`}
                                   placeholder="Nombre de la sesión"
                                 />
-                                <SimpleGrid columns={2} spacing={4}>
-                                  <DatePickerField
-                                    name={`courseSession.${idx}.startTime`}
-                                    label="Hora Inicio"
-                                    dateFormat="h:mm aa"
-                                    showTimeSelect
-                                    showTimeSelectOnly
-                                    showPopperArrow={true}
-                                  />
-                                  <DatePickerField
-                                    name={`courseSession.${idx}.endTime`}
-                                    label="Hora Fin"
-                                    dateFormat="h:mm aa"
-                                    showTimeSelect
-                                    showTimeSelectOnly
-                                    showPopperArrow={true}
-                                  />
-                                </SimpleGrid>
+                                <DatePickerField
+                                  name={`courseSession.${idx}.startTime`}
+                                  label="Hora Inicio"
+                                  dateFormat="h:mm aa"
+                                  showTimeSelect
+                                  showPopperArrow={true}
+                                />
+                                <DatePickerField
+                                  name={`courseSession.${idx}.endTime`}
+                                  label="Hora Fin"
+                                  dateFormat="h:mm aa"
+                                  showTimeSelect
+                                  showPopperArrow={true}
+                                />
                                 <InputField
                                   label="URL de la grabación"
                                   name={`courseSession.${idx}.recordingUrl`}
                                   placeholder="URL de la grabación"
                                 />
                                 <Flex flexDirection="column">
-                                  {/* {sessions.?.map((file, index) => (
-                                    <Box
-                                      key={file.name}
-                                      backgroundColor={filesBg}
-                                      p={2}
-                                      mt={3}
-                                      width="100%"
-                                      position="relative"
-                                    >
-                                      {file.name}
-                                      <Icon
-                                        as={TiDelete}
-                                        position="absolute"
-                                        right={2}
-                                        top={2}
-                                        fontSize="x-large"
-                                        cursor="pointer"
-                                      />
-                                    </Box>
-                                  ))} */}
                                   <DidacticMaterial
                                     name={`courseSession.${idx}.sessionFiles`}
                                   />
-                                  {/* {v.sessionFiles?.map((file, index) => (
-                                    <Box
-                                      key={file.filename}
-                                      backgroundColor={filesBg}
-                                      p={2}
-                                      mt={3}
-                                      width="100%"
-                                      position="relative"
-                                    >
-                                      <Link
-                                        href={`${S3_URL}${file.filename}`}
-                                        isExternal
-                                      >
-                                        {file.filename?.replace(
-                                          "/sessions/",
-                                          ""
-                                        )}
-                                      </Link>
-                                      <Icon
-                                        as={TiDelete}
-                                        position="absolute"
-                                        right={2}
-                                        top={2}
-                                        fontSize="x-large"
-                                        cursor="pointer"
-                                        // onClick={() =>
-                                        //   removeFile(idx, index, file.id, v.id)
-                                        // }
-                                      />
-                                    </Box>
-                                  ))}
-                                  <AddSessionFiles
-                                    complete={uploadFiles}
-                                    name="files"
-                                  /> */}
                                 </Flex>
                               </SimpleGrid>
                             </SimpleGrid>

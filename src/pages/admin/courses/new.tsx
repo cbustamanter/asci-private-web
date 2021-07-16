@@ -151,22 +151,20 @@ const New: React.FC<{}> = ({}) => {
                                 name={`courseSessions.${idx}.name`}
                                 placeholder="Nombre de la sesión"
                               />
-                              <SimpleGrid columns={1} spacing={4}>
-                                <DatePickerField
-                                  name={`courseSessions.${idx}.startTime`}
-                                  label="Hora Inicio"
-                                  dateFormat="yyyy-MM-d h:mm aa"
-                                  showTimeSelect
-                                  showPopperArrow={true}
-                                />
-                                <DatePickerField
-                                  name={`courseSessions.${idx}.endTime`}
-                                  label="Hora Fin"
-                                  dateFormat="yyyy-MM-d h:mm aa"
-                                  showTimeSelect
-                                  showPopperArrow={true}
-                                />
-                              </SimpleGrid>
+                              <DatePickerField
+                                name={`courseSessions.${idx}.startTime`}
+                                label="Hora Inicio"
+                                dateFormat="yyyy-MM-d h:mm aa"
+                                showTimeSelect
+                                showPopperArrow={true}
+                              />
+                              <DatePickerField
+                                name={`courseSessions.${idx}.endTime`}
+                                label="Hora Fin"
+                                dateFormat="yyyy-MM-d h:mm aa"
+                                showTimeSelect
+                                showPopperArrow={true}
+                              />
                               <InputField
                                 label="URL de la grabación"
                                 name={`courseSessions.${idx}.recordingUrl`}

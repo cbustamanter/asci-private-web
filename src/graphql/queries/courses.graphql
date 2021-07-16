@@ -8,15 +8,9 @@ query courses($page: Int!, $per_page: Int) {
       statusText
       hasTestText
       courseDetail {
+        id
         name
         coverPhoto
-        courseSessions {
-          name
-          sessionFiles {
-            id
-            filename
-          }
-        }
       }
     }
   }

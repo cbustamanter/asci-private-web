@@ -73,26 +73,27 @@ export type ForgotPasswordResponse = {
 };
 
 export type InputCourseDetail = {
-  hasTest: Scalars['Boolean'];
-  name: Scalars['String'];
-  description: Scalars['String'];
-  startDate: Scalars['DateTime'];
-  endDate: Scalars['DateTime'];
-  classUrl: Scalars['String'];
-  coverPhoto: Scalars['Upload'];
+  hasTest?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  startDate?: Maybe<Scalars['DateTime']>;
+  endDate?: Maybe<Scalars['DateTime']>;
+  classUrl?: Maybe<Scalars['String']>;
+  coverPhoto?: Maybe<Scalars['Upload']>;
 };
 
 export type InputCourseSession = {
-  name: Scalars['String'];
-  startTime: Scalars['DateTime'];
-  endTime: Scalars['DateTime'];
-  recordingUrl: Scalars['String'];
+  name?: Maybe<Scalars['String']>;
+  startTime?: Maybe<Scalars['DateTime']>;
+  endTime?: Maybe<Scalars['DateTime']>;
+  recordingUrl?: Maybe<Scalars['String']>;
   files?: Maybe<Array<Scalars['Upload']>>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   createCourse: Course;
+  updateCourse: Scalars['Boolean'];
   removeSessionFile: Scalars['Boolean'];
   createUser: UserResponse;
   login?: Maybe<UserResponse>;
@@ -107,6 +108,13 @@ export type Mutation = {
 export type MutationCreateCourseArgs = {
   courseSessions: Array<InputCourseSession>;
   courseDetail: InputCourseDetail;
+};
+
+
+export type MutationUpdateCourseArgs = {
+  courseSessions?: Maybe<InputCourseSession>;
+  courseDetail?: Maybe<InputCourseDetail>;
+  id: Scalars['String'];
 };
 
 
@@ -201,6 +209,9 @@ export type SessionFile = {
   updatedAt: Scalars['String'];
   id: Scalars['String'];
   filename?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  mimetype?: Maybe<Scalars['String']>;
+  encoding?: Maybe<Scalars['String']>;
   courseSession: CourseSession;
 };
 
@@ -408,7 +419,7 @@ export type CourseQuery = (
         & Pick<CourseSession, 'id' | 'name' | 'startTime' | 'endTime' | 'recordingUrl'>
         & { sessionFiles?: Maybe<Array<(
           { __typename?: 'SessionFile' }
-          & Pick<SessionFile, 'id' | 'filename'>
+          & Pick<SessionFile, 'id' | 'filename' | 'name'>
         )>> }
       )> }
     ) }
@@ -431,15 +442,7 @@ export type CoursesQuery = (
       & Pick<Course, 'id' | 'totalUsers' | 'statusText' | 'hasTestText'>
       & { courseDetail: (
         { __typename?: 'CourseDetail' }
-        & Pick<CourseDetail, 'name' | 'coverPhoto'>
-        & { courseSessions: Array<(
-          { __typename?: 'CourseSession' }
-          & Pick<CourseSession, 'name'>
-          & { sessionFiles?: Maybe<Array<(
-            { __typename?: 'SessionFile' }
-            & Pick<SessionFile, 'id' | 'filename'>
-          )>> }
-        )> }
+        & Pick<CourseDetail, 'id' | 'name' | 'coverPhoto'>
       ) }
     )> }
   ) }
@@ -652,6 +655,7 @@ export const CourseDocument = gql`
         sessionFiles {
           id
           filename
+          name
         }
       }
     }
@@ -673,15 +677,9 @@ export const CoursesDocument = gql`
       statusText
       hasTestText
       courseDetail {
+        id
         name
         coverPhoto
-        courseSessions {
-          name
-          sessionFiles {
-            id
-            filename
-          }
-        }
       }
     }
   }
