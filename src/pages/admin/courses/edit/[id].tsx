@@ -20,34 +20,20 @@ import { DidacticMaterial } from "../../../../components/DidacticMaterial";
 import { InputField } from "../../../../components/InputField";
 import { RegularDropzone } from "../../../../components/RegularDropzone";
 import { SkeletonPage } from "../../../../components/SkeletonPage";
-import { useCourseQuery } from "../../../../generated/graphql";
+import {
+  useCourseQuery,
+  useUpdateCourseMutation,
+} from "../../../../generated/graphql";
 import { S3_URL } from "../../../../utils/constant";
 import { createUrqlClient } from "../../../../utils/createUrqlClient";
-import { isServer } from "../../../../utils/isServer";
 import { useGetStringId } from "../../../../utils/useGetStringId";
 import { sessionObject } from "../new";
 
-interface IFiles {
-  filename?: string;
-  id?: string;
-}
-interface Files {
-  oldFiles?: IFiles[];
-  newFiles?: File[];
-}
-
-interface Sessions extends Files {
-  id: string;
-  name: string;
-  recordingUrl: string;
-  startTime: Date;
-  endTime: Date;
-}
-
 const EditCourse: React.FC<{}> = ({}) => {
   const id = useGetStringId();
+  const [, updateCourse] = useUpdateCourseMutation();
   const [{ data, fetching }] = useCourseQuery({
-    pause: isServer(),
+    // pause: isServer(),
     variables: { id },
   });
 
@@ -63,29 +49,41 @@ const EditCourse: React.FC<{}> = ({}) => {
         <Formik
           enableReinitialize
           initialValues={{
-            name: data?.course.courseDetail.name,
-            description: data?.course.courseDetail.description,
-            classUrl: data?.course.courseDetail.classUrl,
-            startDate: data?.course.courseDetail.startDate,
-            endDate: data?.course.courseDetail.endDate,
-            hasTest: data?.course.hasTest,
-            courseSession: data?.course.courseDetail.courseSessions || [],
-            coverPhoto: data?.course.courseDetail.coverPhoto || ({} as File),
+            name: data?.course?.courseDetail.name,
+            description: data?.course?.courseDetail.description,
+            classUrl: data?.course?.courseDetail.classUrl,
+            startDate: data?.course?.courseDetail.startDate,
+            endDate: data?.course?.courseDetail.endDate,
+            hasTest: data?.course?.courseDetail.hasTest,
+            courseSession: data?.course?.courseDetail.courseSessions || [],
+            coverPhoto: data?.course?.courseDetail.coverPhoto || ({} as File),
           }}
           onSubmit={async (values, { setErrors }) => {
-            console.log(values);
-            //     const response = await createCourse({
-            //       courseDetail: {
-            //         hasTest,
-            //         classUrl: values.classUrl,
-            //         coverPhoto,
-            //         description: values.description,
-            //         name: values.name,
-            //         startDate: values.startDate,
-            //         endDate: values.endDate,
-            //       },
-            //       courseSessions: sessions,
-            //     });
+            values.courseSession.map((v) => {
+              delete v.__typename;
+              v.courseSessionFiles?.map((f) => delete f.__typename);
+            });
+            const response = await updateCourse({
+              id,
+              courseDetail: {
+                name: values.name,
+                description: values.description,
+                classUrl: values.classUrl,
+                startDate: values.startDate,
+                endDate: values.endDate,
+                hasTest: values.hasTest,
+                coverPhoto:
+                  values.coverPhoto instanceof File
+                    ? values.coverPhoto
+                    : undefined,
+              },
+              courseSessions: values.courseSession,
+            });
+            if (response.data?.updateCourse) {
+              router.replace("/admin/courses");
+            } else {
+              console.log(response.error);
+            }
           }}
         >
           {({ values, isSubmitting, setFieldValue }) => (
@@ -114,7 +112,10 @@ const EditCourse: React.FC<{}> = ({}) => {
                   />
                   {values.coverPhoto && typeof values.coverPhoto === "string" && (
                     <Box backgroundColor={filesBg} p={2}>
-                      <Link href={`${S3_URL}${values.coverPhoto}`} isExternal>
+                      <Link
+                        href={`${S3_URL}/cover-photos/${values.coverPhoto}`}
+                        isExternal
+                      >
                         {values.coverPhoto?.replace("/cover-photos/", "")}
                       </Link>
                     </Box>
@@ -195,7 +196,11 @@ const EditCourse: React.FC<{}> = ({}) => {
                                 />
                                 <Flex flexDirection="column">
                                   <DidacticMaterial
-                                    name={`courseSession.${idx}.sessionFiles`}
+                                    name={`courseSession.${idx}.courseSessionFiles`}
+                                    hasAddFiles={false}
+                                  />
+                                  <DidacticMaterial
+                                    name={`courseSession.${idx}.files`}
                                   />
                                 </Flex>
                               </SimpleGrid>

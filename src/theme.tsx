@@ -5,6 +5,7 @@ import { InputOrTextareaStyle as InputOrTextarea } from "./styles/components/Inp
 import { LoginStyle as LoginWrapper } from "./styles/components/LoginStyle";
 import { SelectFieldStyle as SelectField } from "./styles/components/SelectFieldStyle";
 import { ButtonStyle as Button } from "./styles/components/ButtonStyle";
+
 const fonts = { mono: `'Menlo', monospace` };
 
 const breakpoints = createBreakpoints({
@@ -17,6 +18,7 @@ const breakpoints = createBreakpoints({
 const theme = extendTheme({
   colors: {
     blue: {
+      100: "#d0eaff",
       500: "#1488F3",
       900: "#1B233E",
     },

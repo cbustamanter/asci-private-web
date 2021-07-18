@@ -34,6 +34,7 @@ export const SidebarSection: React.FC<SidebarSectionProps> = ({
           lineHeight="24px"
           fontWeight="bold"
         >
+          {item.icon}
           {item.text}
         </Text>
       </NextLink>

@@ -21,7 +21,6 @@ function MyApp({ Component, pageProps, router }: AppProps) {
       <Layout>
         <Component {...pageProps} />
       </Layout>
-      <DarkModeSwitch />
     </ChakraProvider>
   );
 }

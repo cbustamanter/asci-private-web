@@ -7,10 +7,6 @@ import { useIsAuth } from "../utils/useIsAuth";
 
 const Index: React.FC<{}> = ({}) => {
   useIsAuth();
-  return (
-    <Container minHeight="100vh">
-      <Sidebar></Sidebar>
-    </Container>
-  );
+  return <Container minHeight="100vh">Esto sera la intranet</Container>;
 };
 export default withUrqlClient(createUrqlClient)(Index);

@@ -21,9 +21,8 @@ const errorExchange: Exchange =
       })
     );
   };
-const invalidateAllUsers = (cache: Cache) => {
-  const key = "Query";
-  const field = "getUsers";
+
+const invalidateList = (cache: Cache, key: string, field: string) => {
   const allFields = cache.inspectFields(key);
   const fieldInfos = allFields.filter((info) => info.fieldName === field);
   fieldInfos.forEach((fi) => {
@@ -31,39 +30,16 @@ const invalidateAllUsers = (cache: Cache) => {
   });
 };
 
-const cursorPagination = (): Resolver => {
-  return (_parent, fieldArgs, cache, info) => {
-    const { parentKey: entityKey, fieldName } = info;
+const invalidateAllUsers = (cache: Cache) => {
+  const key = "Query";
+  const field = "users";
+  invalidateList(cache, key, field);
+};
 
-    const allFields = cache.inspectFields(entityKey);
-    const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
-    const size = fieldInfos.length;
-    if (size === 0) {
-      return undefined;
-    }
-    const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
-    const inCache = cache.resolve(
-      cache.resolve(entityKey, fieldKey) as string,
-      "users"
-    );
-    info.partial = !inCache;
-    let result: string[] = [];
-    let hasMore = true;
-    fieldInfos.forEach((fi) => {
-      const key = cache.resolve(entityKey, fi.fieldKey) as string;
-      const data = cache.resolve(key, "users") as string[];
-      const _hasMore = cache.resolve(key, "hasMore");
-      if (!_hasMore) {
-        hasMore = _hasMore as boolean;
-      }
-      result = data;
-    });
-    return {
-      __typename: "PaginatedUsers",
-      hasMore,
-      users: result,
-    };
-  };
+const invalidateAllCourses = (cache: Cache) => {
+  const key = "Query";
+  const field = "courses";
+  invalidateList(cache, key, field);
 };
 
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
@@ -87,17 +63,27 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
           CourseSession: () => null,
         },
         resolvers: {
-          Query: {
-            getUsers: cursorPagination(),
-          },
+          Query: {},
         },
         updates: {
           Mutation: {
             createUser: (_result, args, cache, info) => {
               invalidateAllUsers(cache);
             },
+            updateUser: (_result, args, cache, info) => {
+              invalidateAllUsers(cache);
+            },
             changeUserStatus: (_result, args, cache, info) => {
               invalidateAllUsers(cache);
+            },
+            createCourse: (_result, args, cache, info) => {
+              invalidateAllCourses(cache);
+            },
+            updateCourse: (_result, args, cache, info) => {
+              invalidateAllCourses(cache);
+            },
+            changeCourseStatus: (_result, args, cache, info) => {
+              invalidateAllCourses(cache);
             },
             login: (_result, args, cache, info) => {
               betterUpdateQuery<LoginMutation, MeQuery>(

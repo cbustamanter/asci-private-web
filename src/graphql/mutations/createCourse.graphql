@@ -2,17 +2,5 @@ mutation createCourse(
   $courseDetail: InputCourseDetail!
   $courseSessions: [InputCourseSession!]!
 ) {
-  createCourse(courseDetail: $courseDetail, courseSessions: $courseSessions) {
-    status
-    courseDetail {
-      coverPhoto
-      name
-      courseSessions {
-        name
-        sessionFiles {
-          filename
-        }
-      }
-    }
-  }
+  createCourse(courseDetail: $courseDetail, courseSessions: $courseSessions)
 }

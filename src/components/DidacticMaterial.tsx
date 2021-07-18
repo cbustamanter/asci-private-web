@@ -7,10 +7,12 @@ import { AddSessionFiles } from "./AddSessionFiles";
 
 interface DidacticMaterial {
   name: string;
+  hasAddFiles?: boolean;
 }
 
 export const DidacticMaterial: React.FC<DidacticMaterial> = ({
   children,
+  hasAddFiles = true,
   ...props
 }) => {
   const [field] = useField(props);
@@ -48,11 +50,13 @@ export const DidacticMaterial: React.FC<DidacticMaterial> = ({
               </Box>
             </Flex>
           ))}
-          <AddSessionFiles
-            complete={(test) => {
-              onDrop(test);
-            }}
-          />
+          {hasAddFiles && (
+            <AddSessionFiles
+              complete={(test) => {
+                onDrop(test);
+              }}
+            />
+          )}
         </>
       )}
     </FieldArray>

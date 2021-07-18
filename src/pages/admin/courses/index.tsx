@@ -10,6 +10,7 @@ import {
   MenuList,
   SimpleGrid,
   Table,
+  TableCaption,
   Tbody,
   Td,
   Th,
@@ -22,19 +23,61 @@ import { SectionHeading } from "../../../components/admin/SectionHeading";
 import { Wrapper } from "../../../components/admin/Wrapper";
 import { EmptyTable } from "../../../components/EmptyTable";
 import { SkeletonTable } from "../../../components/SkeletonTable";
-import { useCoursesQuery } from "../../../generated/graphql";
+import {
+  useChangeCourseStatusMutation,
+  useCoursesQuery,
+} from "../../../generated/graphql";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 import NextLink from "next/link";
 import { BiDotsVerticalRounded } from "react-icons/bi";
+import { Paginate } from "../../../components/Paginate";
+import { SearchInput } from "../../../components/SearchInput";
+import { CoursesFilter } from "../../../components/CoursesFilter";
 const Index: React.FC<{}> = ({}) => {
   const [variables, setVariables] = useState({
     page: 1,
+    status: 1,
+    search: null as null | string,
   });
-  const [{ data, fetching }] = useCoursesQuery({ variables });
+  const [{ data, fetching, error }] = useCoursesQuery({ variables });
+  const [, changeCourseStatus] = useChangeCourseStatusMutation();
+  const handlePagination = (page: number) => {
+    setVariables({ page, search: variables.search, status: variables.status });
+  };
+
+  const handleSearch = (value: string) => {
+    setVariables({
+      page: 1,
+      status: variables.status,
+      search: value.toLowerCase(),
+    });
+  };
+  const handleFilter = (value: string) => {
+    const status = parseInt(value);
+    setVariables({
+      page: 1,
+      status,
+      search: variables.search,
+    });
+  };
+  const handleChangeStatus = (status: number, courseId: string) => {
+    const newStatus = status === 1 ? 2 : 1;
+    changeCourseStatus({ id: courseId, status: newStatus });
+  };
+  if (!fetching && !data) {
+    return (
+      <Box>
+        Oops! Error
+        {error?.message}
+      </Box>
+    );
+  }
   return (
     <Wrapper>
       <SectionHeading title="Cursos" />
       <SimpleGrid minChildWidth="200px" spacingY={[4, 0]} mt={[4, 6]}>
+        <SearchInput onInput={handleSearch} placeholder="Buscar por nombre" />
+        <CoursesFilter onChange={handleFilter} />
         <Box ml={["unset", "auto"]}>
           <NextLink href="/admin/courses/new">
             <Button as={Link} width={["100%", "auto"]}>
@@ -51,10 +94,17 @@ const Index: React.FC<{}> = ({}) => {
           maxWidth={["sm", "calc(100vw - 256px)"]}
           overflow="auto"
         >
-          <Table size={"md"}>
+          <Table size="sm">
+            <TableCaption>
+              <Paginate
+                totalPages={data?.courses.totalPages}
+                prev={data?.courses.prev}
+                currentPage={variables.page}
+                onClick={handlePagination}
+              />
+            </TableCaption>
             <Thead>
               <Tr>
-                <Th>#</Th>
                 <Th>Nombres del curso</Th>
                 <Th>Estudiantes</Th>
                 <Th>Estado</Th>
@@ -69,12 +119,11 @@ const Index: React.FC<{}> = ({}) => {
                 data.courses.data.map((course, idx) => {
                   return (
                     <Tr key={course.id}>
-                      <Td>{idx + 1}</Td>
                       <Td>{course.courseDetail.name}</Td>
                       <Td>{course.totalUsers}</Td>
                       <Td>{course.statusText}</Td>
                       <Td>{course.hasTestText}</Td>
-                      <Td>
+                      <Td color="blue.500">
                         <Menu autoSelect={false}>
                           <MenuButton
                             as={IconButton}
@@ -83,6 +132,13 @@ const Index: React.FC<{}> = ({}) => {
                             variant="ghost"
                           />
                           <MenuList>
+                            <MenuItem
+                              onClick={() =>
+                                handleChangeStatus(course.status, course.id)
+                              }
+                            >
+                              {course.statusAction}
+                            </MenuItem>
                             <NextLink href={`/admin/courses/edit/${course.id}`}>
                               <MenuItem>Editar</MenuItem>
                             </NextLink>

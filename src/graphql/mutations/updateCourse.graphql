@@ -1,0 +1,11 @@
+mutation updateCourse(
+  $id: String!
+  $courseDetail: InputCourseDetail
+  $courseSessions: [InputCourseSessionUpdate]
+) {
+  updateCourse(
+    id: $id
+    courseDetail: $courseDetail
+    courseSessions: $courseSessions
+  )
+}

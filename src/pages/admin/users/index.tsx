@@ -12,6 +12,7 @@ import {
   Select,
   SimpleGrid,
   Table,
+  TableCaption,
   Tbody,
   Td,
   Th,
@@ -25,29 +26,42 @@ import { BiDotsVerticalRounded } from "react-icons/bi";
 import { SectionHeading } from "../../../components/admin/SectionHeading";
 import { Wrapper } from "../../../components/admin/Wrapper";
 import { EmptyTable } from "../../../components/EmptyTable";
+import { Paginate } from "../../../components/Paginate";
+import { SearchInput } from "../../../components/SearchInput";
+import { SkeletonTable } from "../../../components/SkeletonTable";
+import { UsersFilter } from "../../../components/UsersFilter";
 import {
   useChangeUserStatusMutation,
-  useGetUsersQuery,
+  useUsersQuery,
 } from "../../../generated/graphql";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 import { debounce } from "../../../utils/debounce";
 
 const Index: React.FC<{}> = ({}) => {
   const [variables, setVariables] = useState({
-    limit: 10,
-    cursor: null as null | string,
+    page: 1,
     status: 1,
     search: null as null | string,
   });
-  const [{ data, fetching, error }] = useGetUsersQuery({ variables });
+  const [{ data, fetching, error }] = useUsersQuery({ variables });
   const [, changeUserStatus] = useChangeUserStatusMutation();
 
   const searchUser = (value: string) => {
     setVariables({
-      limit: variables.limit,
-      cursor: variables.cursor,
+      page: 1,
       status: variables.status,
       search: value.toLowerCase(),
+    });
+  };
+  const handlePagination = (page: number) => {
+    setVariables({ page, search: variables.search, status: variables.status });
+  };
+  const handleFilter = (value: string) => {
+    const status = parseInt(value);
+    setVariables({
+      page: 1,
+      status,
+      search: variables.search,
     });
   };
 
@@ -63,32 +77,12 @@ const Index: React.FC<{}> = ({}) => {
     <Wrapper>
       <SectionHeading title="Estudiantes" />
       <SimpleGrid minChildWidth="200px" spacingY={[4, 0]} mt={[4, 6]}>
-        <Box>
-          <Input
-            placeholder="Buscar por nombre o correo"
-            onInput={(e) => {
-              const value = (e.target as HTMLInputElement).value;
-              const debounceFn = debounce(searchUser, 500);
-              debounceFn(value);
-            }}
-          />
-        </Box>
+        <SearchInput
+          placeholder="Buscar por nombre o correo"
+          onInput={searchUser}
+        />
         <Box ml={[0, 6]} width={["100w", "auto"]}>
-          <Select
-            defaultValue="1"
-            onChange={(e) =>
-              setVariables({
-                limit: variables.limit,
-                cursor: variables.cursor,
-                status: parseInt(e.target.value),
-                search: variables.search,
-              })
-            }
-          >
-            <option value="1">Estudiantes Activos</option>
-            <option value="0">Estudiantes Inactivos</option>
-            <option value="2">Todos</option>
-          </Select>
+          <UsersFilter onChange={handleFilter} />
         </Box>
         <Box ml={["unset", "auto"]}>
           <NextLink href="/admin/users/new">
@@ -99,17 +93,24 @@ const Index: React.FC<{}> = ({}) => {
         </Box>
       </SimpleGrid>
       {!data && fetching ? (
-        <Box>Cargando...</Box>
+        <SkeletonTable />
       ) : (
         <Flex
           mt={[4, 8]}
           maxWidth={["sm", "calc(100vw - 256px)"]}
           overflow="auto"
         >
-          <Table size={"md"}>
+          <Table size="sm">
+            <TableCaption>
+              <Paginate
+                totalPages={data?.users.totalPages}
+                prev={data?.users.prev}
+                currentPage={variables.page}
+                onClick={handlePagination}
+              />
+            </TableCaption>
             <Thead>
               <Tr>
-                <Th>#</Th>
                 <Th>Nombres</Th>
                 <Th>Apellidos</Th>
                 <Th>Correo</Th>
@@ -122,13 +123,12 @@ const Index: React.FC<{}> = ({}) => {
               </Tr>
             </Thead>
             <Tbody>
-              {!data?.getUsers.users.length ? (
+              {!data?.users.data.length ? (
                 <EmptyTable colspan={7} />
               ) : (
-                data.getUsers.users.map((user, idx) => {
+                data.users.data.map((user, idx) => {
                   return (
                     <Tr key={user.id}>
-                      <Td>{idx + 1}</Td>
                       <Td>{user.names}</Td>
                       <Td>{user.surnames}</Td>
                       <Td>{user.email}</Td>
@@ -176,25 +176,6 @@ const Index: React.FC<{}> = ({}) => {
           </Table>
         </Flex>
       )}
-      {data && data.getUsers.hasMore ? (
-        <Flex>
-          <Button
-            m="auto"
-            my={6}
-            onClick={() => {
-              setVariables({
-                limit: variables.limit,
-                cursor:
-                  data.getUsers.users[data.getUsers.users.length - 1].createdAt,
-                status: variables.status,
-                search: variables.search,
-              });
-            }}
-          >
-            Cargar Mas
-          </Button>
-        </Flex>
-      ) : null}
     </Wrapper>
   );
 };

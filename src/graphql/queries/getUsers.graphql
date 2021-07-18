@@ -1,8 +1,0 @@
-query getUsers($limit: Int!, $cursor: String, $status: Int, $search: String) {
-  getUsers(limit: $limit, cursor: $cursor, status: $status, search: $search) {
-    users {
-      ...RegularUser
-    }
-    hasMore
-  }
-}

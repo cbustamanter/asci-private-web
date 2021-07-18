@@ -1,10 +1,12 @@
-query courses($page: Int!, $per_page: Int) {
-  courses(page: $page, per_page: $per_page) {
+query courses($page: Int!, $per_page: Int, $search: String, $status: Int) {
+  courses(page: $page, per_page: $per_page, search: $search, status: $status) {
     prev
     totalPages
     data {
       id
       totalUsers
+      status
+      statusAction
       statusText
       hasTestText
       courseDetail {

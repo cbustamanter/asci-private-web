@@ -1,9 +1,9 @@
 query course($id: String!) {
   course(id: $id) {
     id
-    hasTest
     courseDetail {
       id
+      hasTest
       name
       description
       coverPhoto
@@ -16,10 +16,14 @@ query course($id: String!) {
         startTime
         endTime
         recordingUrl
-        sessionFiles {
+        courseSessionFiles {
           id
           filename
           name
+          createdAt
+          updatedAt
+          mimetype
+          encoding
         }
       }
     }

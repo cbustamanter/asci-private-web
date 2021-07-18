@@ -1,0 +1,9 @@
+query users($page: Int!, $per_page: Int, $status: Int, $search: String) {
+  users(page: $page, per_page: $per_page, status: $status, search: $search) {
+    prev
+    totalPages
+    data {
+      ...RegularUser
+    }
+  }
+}
