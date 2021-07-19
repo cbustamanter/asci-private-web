@@ -222,6 +222,7 @@ export type Query = {
   me?: Maybe<User>;
   users: PaginatedUsers;
   getUser: User;
+  searchUsers?: Maybe<Array<User>>;
 };
 
 
@@ -252,6 +253,11 @@ export type QueryUsersArgs = {
 
 export type QueryGetUserArgs = {
   id: Scalars['String'];
+};
+
+
+export type QuerySearchUsersArgs = {
+  arg: Scalars['String'];
 };
 
 export type Question = {
@@ -627,6 +633,19 @@ export type QuizzesQuery = (
   ) }
 );
 
+export type SearchUsersQueryVariables = Exact<{
+  arg: Scalars['String'];
+}>;
+
+
+export type SearchUsersQuery = (
+  { __typename?: 'Query' }
+  & { searchUsers?: Maybe<Array<(
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'names' | 'surnames' | 'email'>
+  )>> }
+);
+
 export type UsersQueryVariables = Exact<{
   args: PaginatedArgs;
 }>;
@@ -935,6 +954,20 @@ export const QuizzesDocument = gql`
 
 export function useQuizzesQuery(options: Omit<Urql.UseQueryArgs<QuizzesQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<QuizzesQuery>({ query: QuizzesDocument, ...options });
+};
+export const SearchUsersDocument = gql`
+    query searchUsers($arg: String!) {
+  searchUsers(arg: $arg) {
+    id
+    names
+    surnames
+    email
+  }
+}
+    `;
+
+export function useSearchUsersQuery(options: Omit<Urql.UseQueryArgs<SearchUsersQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<SearchUsersQuery>({ query: SearchUsersDocument, ...options });
 };
 export const UsersDocument = gql`
     query users($args: PaginatedArgs!) {

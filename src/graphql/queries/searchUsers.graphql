@@ -1,0 +1,8 @@
+query searchUsers($arg: String!) {
+  searchUsers(arg: $arg) {
+    id
+    names
+    surnames
+    email
+  }
+}

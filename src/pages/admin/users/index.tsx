@@ -3,13 +3,11 @@ import {
   Button,
   Flex,
   IconButton,
-  Input,
   Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  Select,
   SimpleGrid,
   Table,
   TableCaption,
@@ -18,6 +16,7 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
@@ -28,6 +27,7 @@ import { Wrapper } from "../../../components/admin/Wrapper";
 import { EmptyTable } from "../../../components/EmptyTable";
 import { Paginate } from "../../../components/Paginate";
 import { SearchInput } from "../../../components/SearchInput";
+import { SearchModal } from "../../../components/SearchModal";
 import { SkeletonTable } from "../../../components/SkeletonTable";
 import { UsersFilter } from "../../../components/UsersFilter";
 import {
@@ -35,7 +35,6 @@ import {
   useUsersQuery,
 } from "../../../generated/graphql";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
-import { debounce } from "../../../utils/debounce";
 
 const Index: React.FC<{}> = ({}) => {
   const [args, setVariables] = useState({
@@ -47,7 +46,7 @@ const Index: React.FC<{}> = ({}) => {
     variables: { args },
   });
   const [, changeUserStatus] = useChangeUserStatusMutation();
-
+  const { onClose, isOpen, onOpen } = useDisclosure();
   const searchUser = (value: string) => {
     setVariables({
       page: 1,
@@ -77,6 +76,8 @@ const Index: React.FC<{}> = ({}) => {
   }
   return (
     <Wrapper>
+      <SearchModal isOpen={isOpen} onClose={onClose} />
+      <Button onClick={() => onOpen()}>Abrir modal</Button>
       <SectionHeading title="Estudiantes" />
       <SimpleGrid minChildWidth="200px" spacingY={[4, 0]} mt={[4, 6]}>
         <SearchInput
