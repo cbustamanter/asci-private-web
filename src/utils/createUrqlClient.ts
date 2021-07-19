@@ -42,6 +42,18 @@ const invalidateAllCourses = (cache: Cache) => {
   invalidateList(cache, key, field);
 };
 
+const invalidateAllQuizzes = (cache: Cache) => {
+  const key = "Query";
+  const field = "quizzes";
+  invalidateList(cache, key, field);
+};
+
+const invalidateCourse = (cache: Cache) => {
+  const key = "Query";
+  const field = "course";
+  invalidateList(cache, key, field);
+};
+
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = "";
   if (isServer()) {
@@ -61,6 +73,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
           PaginatedCourses: () => null,
           CourseDetail: () => null,
           CourseSession: () => null,
+          PaginatedQuizzes: () => null,
         },
         resolvers: {
           Query: {},
@@ -81,6 +94,11 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             },
             updateCourse: (_result, args, cache, info) => {
               invalidateAllCourses(cache);
+              invalidateCourse(cache);
+              invalidateAllQuizzes(cache);
+            },
+            deleteSession: (_result, args, cache, info) => {
+              invalidateCourse(cache);
             },
             changeCourseStatus: (_result, args, cache, info) => {
               invalidateAllCourses(cache);

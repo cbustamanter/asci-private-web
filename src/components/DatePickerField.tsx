@@ -13,9 +13,11 @@ interface Props {
   label: string;
   name: string;
   minDate?: Date | null | undefined;
+  maxDate?: Date | null | undefined;
   maxTime?: Date | undefined;
   minTime?: Date | undefined;
   dateFormat?: string | undefined;
+  disabled?: boolean;
 }
 
 registerLocale("es", es);
@@ -28,9 +30,11 @@ export const DatePickerField: React.FC<Props & HTMLAttributes<HTMLElement>> = ({
   onSelect: _,
   label,
   minDate,
+  maxDate,
   minTime,
   maxTime,
   dateFormat,
+  disabled = false,
   ...props
 }) => {
   const { setFieldValue } = useFormikContext();
@@ -40,6 +44,7 @@ export const DatePickerField: React.FC<Props & HTMLAttributes<HTMLElement>> = ({
       <FormLabel htmlFor={field.name}>{label}</FormLabel>
       <ReactDatePicker
         locale="es"
+        disabled={disabled}
         selected={(field.value && new Date(field.value)) || null}
         onChange={(val) => {
           setFieldValue(field.name, val);
@@ -49,6 +54,7 @@ export const DatePickerField: React.FC<Props & HTMLAttributes<HTMLElement>> = ({
         minTime={minTime}
         maxTime={maxTime}
         minDate={minDate}
+        maxDate={maxDate}
         showTimeSelect={showTimeSelect}
         showTimeSelectOnly={showTimeSelectOnly}
         showPopperArrow={showPopperArrow}

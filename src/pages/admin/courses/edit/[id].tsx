@@ -8,20 +8,23 @@ import {
   Switch,
   Text,
   useColorModeValue,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { FieldArray, Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
 import router from "next/router";
-import React from "react";
+import React, { useState } from "react";
 import { SectionHeading } from "../../../../components/admin/SectionHeading";
 import { Wrapper } from "../../../../components/admin/Wrapper";
 import { DatePickerField } from "../../../../components/DatePickerField";
+import { DeleteDialog } from "../../../../components/DeleteDialog";
 import { DidacticMaterial } from "../../../../components/DidacticMaterial";
 import { InputField } from "../../../../components/InputField";
 import { RegularDropzone } from "../../../../components/RegularDropzone";
 import { SkeletonPage } from "../../../../components/SkeletonPage";
 import {
   useCourseQuery,
+  useDeleteSessionMutation,
   useUpdateCourseMutation,
 } from "../../../../generated/graphql";
 import { S3_URL } from "../../../../utils/constant";
@@ -32,16 +35,40 @@ import { sessionObject } from "../new";
 const EditCourse: React.FC<{}> = ({}) => {
   const id = useGetStringId();
   const [, updateCourse] = useUpdateCourseMutation();
+  const [, deleteSession] = useDeleteSessionMutation();
   const [{ data, fetching }] = useCourseQuery({
     // pause: isServer(),
     variables: { id },
   });
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [sessionId, setSessionId] = useState<string>();
   const bg = useColorModeValue("#F7F9FB", "gray.800");
   const filesBg = useColorModeValue("#E6EAED", "gray.600");
 
+  const handleDeleteSession = async (sessionId: any) => {
+    await deleteSession({ id: sessionId });
+    onClose();
+  };
+
+  const handleDeleteDialog = (id: string, remove: any, idx: number) => {
+    if (!id) {
+      remove(idx);
+      return;
+    }
+    setSessionId(id);
+    onOpen();
+  };
+
   return (
     <Wrapper>
+      <DeleteDialog
+        onClose={onClose}
+        onConfirm={handleDeleteSession}
+        params={sessionId}
+        isOpen={isOpen}
+        header="¿Eliminar sesión?"
+        body="¿Está seguro que quiere eliminar esta sesión?"
+      />
       <SectionHeading title="Editar curso" />
       {fetching && !data ? (
         <SkeletonPage sections={3} itemPerSection={4} />
@@ -156,7 +183,9 @@ const EditCourse: React.FC<{}> = ({}) => {
                                   ml="auto"
                                   variant="link"
                                   colorScheme="red"
-                                  onClick={() => remove(idx)}
+                                  onClick={() =>
+                                    handleDeleteDialog(v.id, remove, idx)
+                                  }
                                 >
                                   Eliminar sesión
                                 </Button>
@@ -178,14 +207,25 @@ const EditCourse: React.FC<{}> = ({}) => {
                                 <DatePickerField
                                   name={`courseSession.${idx}.startTime`}
                                   label="Hora Inicio"
-                                  dateFormat="h:mm aa"
+                                  minDate={new Date(values.startDate)}
+                                  dateFormat="yyyy-MM-d h:mm aa"
                                   showTimeSelect
                                   showPopperArrow={true}
                                 />
                                 <DatePickerField
                                   name={`courseSession.${idx}.endTime`}
                                   label="Hora Fin"
-                                  dateFormat="h:mm aa"
+                                  dateFormat="yyyy-MM-d h:mm aa"
+                                  minDate={
+                                    new Date(
+                                      values.courseSession[idx].startTime
+                                    )
+                                  }
+                                  maxDate={
+                                    new Date(
+                                      values.courseSession[idx].startTime
+                                    )
+                                  }
                                   showTimeSelect
                                   showPopperArrow={true}
                                 />

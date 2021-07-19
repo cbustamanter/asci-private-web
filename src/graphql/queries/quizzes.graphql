@@ -1,0 +1,9 @@
+query quizzes($args: PaginatedArgs!) {
+  quizzes(args: $args) {
+    prev
+    totalPages
+    data {
+      ...RegularQuizz
+    }
+  }
+}

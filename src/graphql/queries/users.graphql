@@ -1,5 +1,5 @@
-query users($page: Int!, $per_page: Int, $status: Int, $search: String) {
-  users(page: $page, per_page: $per_page, status: $status, search: $search) {
+query users($args: PaginatedArgs!) {
+  users(args: $args) {
     prev
     totalPages
     data {

@@ -18,37 +18,39 @@ export const Paginate: React.FC<PaginateProps> = ({
   const pageList = getPageList(totalPages, currentPage, 7);
   return (
     <Flex justifyContent="center" alignItems="center">
-      <HStack>
-        <Box>
-          <IconButton
-            aria-label="prev"
-            onClick={() => onClick(currentPage - 1)}
-            variant="paginate"
-            icon={<Icon as={GrFormPrevious} fontSize="lg" />}
-            isDisabled={prev === null}
-          />
-        </Box>
-        {pageList.map((page, idx) => (
-          <Button
-            isActive={currentPage === page}
-            disabled={page ? false : true}
-            variant="paginate"
-            onClick={() => onClick(page)}
-            key={idx}
-          >
-            {page || "..."}
-          </Button>
-        ))}
-        <Box>
-          <IconButton
-            aria-label="prev"
-            variant="paginate"
-            onClick={() => onClick(currentPage + 1)}
-            isDisabled={currentPage === totalPages}
-            icon={<Icon as={GrFormNext} fontSize="lg" />}
-          />
-        </Box>
-      </HStack>
+      {totalPages ? (
+        <HStack>
+          <Box>
+            <IconButton
+              aria-label="prev"
+              onClick={() => onClick(currentPage - 1)}
+              variant="paginate"
+              icon={<Icon as={GrFormPrevious} fontSize="lg" />}
+              isDisabled={prev === null}
+            />
+          </Box>
+          {pageList.map((page, idx) => (
+            <Button
+              isActive={currentPage === page}
+              disabled={page ? false : true}
+              variant="paginate"
+              onClick={() => onClick(page)}
+              key={idx}
+            >
+              {page || "..."}
+            </Button>
+          ))}
+          <Box>
+            <IconButton
+              aria-label="prev"
+              variant="paginate"
+              onClick={() => onClick(currentPage + 1)}
+              isDisabled={currentPage === totalPages}
+              icon={<Icon as={GrFormNext} fontSize="lg" />}
+            />
+          </Box>
+        </HStack>
+      ) : null}
     </Flex>
   );
 };

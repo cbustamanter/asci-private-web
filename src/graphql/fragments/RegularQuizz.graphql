@@ -1,0 +1,29 @@
+fragment RegularQuizz on Quizz {
+  id
+  status
+  statusText
+  statusAction
+  course {
+    id
+    courseDetail {
+      name
+      endDate
+    }
+  }
+  quizzDetail {
+    id
+    description
+    endDate
+    timeToComplete
+    questions {
+      id
+      statement
+      score
+      answers {
+        id
+        text
+        isCorrect
+      }
+    }
+  }
+}

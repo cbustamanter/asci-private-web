@@ -1,0 +1,5 @@
+query quizz($id: String!) {
+  quizz(id: $id) {
+    ...RegularQuizz
+  }
+}

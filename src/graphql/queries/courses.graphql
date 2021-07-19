@@ -1,5 +1,5 @@
-query courses($page: Int!, $per_page: Int, $search: String, $status: Int) {
-  courses(page: $page, per_page: $per_page, search: $search, status: $status) {
+query courses($args: PaginatedArgs!) {
+  courses(args: $args) {
     prev
     totalPages
     data {

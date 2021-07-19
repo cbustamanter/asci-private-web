@@ -154,6 +154,7 @@ const New: React.FC<{}> = ({}) => {
                               <DatePickerField
                                 name={`courseSessions.${idx}.startTime`}
                                 label="Hora Inicio"
+                                minDate={values.startDate}
                                 dateFormat="yyyy-MM-d h:mm aa"
                                 showTimeSelect
                                 showPopperArrow={true}
@@ -161,6 +162,8 @@ const New: React.FC<{}> = ({}) => {
                               <DatePickerField
                                 name={`courseSessions.${idx}.endTime`}
                                 label="Hora Fin"
+                                minDate={values.courseSessions[idx].startTime}
+                                maxDate={values.courseSessions[idx].startTime}
                                 dateFormat="yyyy-MM-d h:mm aa"
                                 showTimeSelect
                                 showPopperArrow={true}

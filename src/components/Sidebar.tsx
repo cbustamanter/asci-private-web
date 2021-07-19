@@ -27,7 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({}) => {
     {
       icon: <Icon as={RiFileTextFill} fontSize={24} mr={1} />,
       text: "Exámenes",
-      route: "/admin/tests",
+      route: "/admin/quizzes",
     },
   ];
   const publicItems = [

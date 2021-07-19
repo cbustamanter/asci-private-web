@@ -18,6 +18,16 @@ export type Scalars = {
   Upload: any;
 };
 
+export type Answer = {
+  __typename?: 'Answer';
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  id: Scalars['String'];
+  text: Scalars['String'];
+  isCorrect: Scalars['Boolean'];
+  question: Question;
+};
+
 export type Course = {
   __typename?: 'Course';
   createdAt: Scalars['String'];
@@ -25,6 +35,7 @@ export type Course = {
   id: Scalars['String'];
   status: Scalars['Int'];
   courseDetail: CourseDetail;
+  quizz?: Maybe<Quizz>;
   users?: Maybe<Array<User>>;
   totalUsers: Scalars['Int'];
   statusText: Scalars['String'];
@@ -105,6 +116,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createCourse: Scalars['Boolean'];
   updateCourse: Scalars['Boolean'];
+  deleteSession: Scalars['Boolean'];
   changeCourseStatus: Scalars['Boolean'];
   createUser: UserResponse;
   login?: Maybe<UserResponse>;
@@ -125,6 +137,11 @@ export type MutationCreateCourseArgs = {
 export type MutationUpdateCourseArgs = {
   courseSessions?: Maybe<Array<Maybe<InputCourseSessionUpdate>>>;
   courseDetail?: Maybe<InputCourseDetail>;
+  id: Scalars['String'];
+};
+
+
+export type MutationDeleteSessionArgs = {
   id: Scalars['String'];
 };
 
@@ -168,24 +185,40 @@ export type MutationChangePasswordArgs = {
   token: Scalars['String'];
 };
 
+export type PaginatedArgs = {
+  status?: Maybe<Scalars['Int']>;
+  search?: Maybe<Scalars['String']>;
+  page: Scalars['Int'];
+  per_page?: Maybe<Scalars['Int']>;
+};
+
 export type PaginatedCourses = {
   __typename?: 'PaginatedCourses';
   prev?: Maybe<Scalars['Int']>;
-  data: Array<Course>;
   totalPages: Scalars['Int'];
+  data: Array<Course>;
+};
+
+export type PaginatedQuizzes = {
+  __typename?: 'PaginatedQuizzes';
+  prev?: Maybe<Scalars['Int']>;
+  totalPages: Scalars['Int'];
+  data: Array<Quizz>;
 };
 
 export type PaginatedUsers = {
   __typename?: 'PaginatedUsers';
   prev?: Maybe<Scalars['Int']>;
-  data: Array<User>;
   totalPages: Scalars['Int'];
+  data: Array<User>;
 };
 
 export type Query = {
   __typename?: 'Query';
   courses: PaginatedCourses;
   course?: Maybe<Course>;
+  quizzes: PaginatedQuizzes;
+  quizz: Quizz;
   me?: Maybe<User>;
   users: PaginatedUsers;
   getUser: User;
@@ -193,10 +226,7 @@ export type Query = {
 
 
 export type QueryCoursesArgs = {
-  per_page?: Maybe<Scalars['Int']>;
-  page: Scalars['Int'];
-  search?: Maybe<Scalars['String']>;
-  status?: Maybe<Scalars['Int']>;
+  args: PaginatedArgs;
 };
 
 
@@ -205,16 +235,57 @@ export type QueryCourseArgs = {
 };
 
 
+export type QueryQuizzesArgs = {
+  args: PaginatedArgs;
+};
+
+
+export type QueryQuizzArgs = {
+  id: Scalars['String'];
+};
+
+
 export type QueryUsersArgs = {
-  per_page?: Maybe<Scalars['Int']>;
-  page: Scalars['Int'];
-  search?: Maybe<Scalars['String']>;
-  status?: Maybe<Scalars['Int']>;
+  args: PaginatedArgs;
 };
 
 
 export type QueryGetUserArgs = {
   id: Scalars['String'];
+};
+
+export type Question = {
+  __typename?: 'Question';
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  id: Scalars['String'];
+  statement: Scalars['String'];
+  score: Scalars['Int'];
+  answers?: Maybe<Array<Answer>>;
+  quizzDetail: QuizzDetail;
+};
+
+export type Quizz = {
+  __typename?: 'Quizz';
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  id: Scalars['String'];
+  status: Scalars['Int'];
+  course: Course;
+  quizzDetail?: Maybe<QuizzDetail>;
+  statusText: Scalars['String'];
+  statusAction: Scalars['String'];
+};
+
+export type QuizzDetail = {
+  __typename?: 'QuizzDetail';
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  id: Scalars['String'];
+  description: Scalars['String'];
+  endDate: Scalars['String'];
+  timeToComplete: Scalars['String'];
+  questions: Array<Question>;
 };
 
 export type SessionFile = {
@@ -279,6 +350,30 @@ export type UserResponse = {
 export type RegularErrorFragment = (
   { __typename?: 'FieldError' }
   & Pick<FieldError, 'field' | 'message'>
+);
+
+export type RegularQuizzFragment = (
+  { __typename?: 'Quizz' }
+  & Pick<Quizz, 'id' | 'status' | 'statusText' | 'statusAction'>
+  & { course: (
+    { __typename?: 'Course' }
+    & Pick<Course, 'id'>
+    & { courseDetail: (
+      { __typename?: 'CourseDetail' }
+      & Pick<CourseDetail, 'name' | 'endDate'>
+    ) }
+  ), quizzDetail?: Maybe<(
+    { __typename?: 'QuizzDetail' }
+    & Pick<QuizzDetail, 'id' | 'description' | 'endDate' | 'timeToComplete'>
+    & { questions: Array<(
+      { __typename?: 'Question' }
+      & Pick<Question, 'id' | 'statement' | 'score'>
+      & { answers?: Maybe<Array<(
+        { __typename?: 'Answer' }
+        & Pick<Answer, 'id' | 'text' | 'isCorrect'>
+      )>> }
+    )> }
+  )> }
 );
 
 export type RegularUserFragment = (
@@ -365,6 +460,16 @@ export type CreateUserMutation = (
   ) }
 );
 
+export type DeleteSessionMutationVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type DeleteSessionMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deleteSession'>
+);
+
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
 }>;
@@ -448,10 +553,7 @@ export type CourseQuery = (
 );
 
 export type CoursesQueryVariables = Exact<{
-  page: Scalars['Int'];
-  per_page?: Maybe<Scalars['Int']>;
-  search?: Maybe<Scalars['String']>;
-  status?: Maybe<Scalars['Int']>;
+  args: PaginatedArgs;
 }>;
 
 
@@ -495,11 +597,38 @@ export type MeQuery = (
   )> }
 );
 
+export type QuizzQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type QuizzQuery = (
+  { __typename?: 'Query' }
+  & { quizz: (
+    { __typename?: 'Quizz' }
+    & RegularQuizzFragment
+  ) }
+);
+
+export type QuizzesQueryVariables = Exact<{
+  args: PaginatedArgs;
+}>;
+
+
+export type QuizzesQuery = (
+  { __typename?: 'Query' }
+  & { quizzes: (
+    { __typename?: 'PaginatedQuizzes' }
+    & Pick<PaginatedQuizzes, 'prev' | 'totalPages'>
+    & { data: Array<(
+      { __typename?: 'Quizz' }
+      & RegularQuizzFragment
+    )> }
+  ) }
+);
+
 export type UsersQueryVariables = Exact<{
-  page: Scalars['Int'];
-  per_page?: Maybe<Scalars['Int']>;
-  status?: Maybe<Scalars['Int']>;
-  search?: Maybe<Scalars['String']>;
+  args: PaginatedArgs;
 }>;
 
 
@@ -515,6 +644,37 @@ export type UsersQuery = (
   ) }
 );
 
+export const RegularQuizzFragmentDoc = gql`
+    fragment RegularQuizz on Quizz {
+  id
+  status
+  statusText
+  statusAction
+  course {
+    id
+    courseDetail {
+      name
+      endDate
+    }
+  }
+  quizzDetail {
+    id
+    description
+    endDate
+    timeToComplete
+    questions {
+      id
+      statement
+      score
+      answers {
+        id
+        text
+        isCorrect
+      }
+    }
+  }
+}
+    `;
 export const RegularErrorFragmentDoc = gql`
     fragment RegularError on FieldError {
   field
@@ -608,6 +768,15 @@ export const CreateUserDocument = gql`
 export function useCreateUserMutation() {
   return Urql.useMutation<CreateUserMutation, CreateUserMutationVariables>(CreateUserDocument);
 };
+export const DeleteSessionDocument = gql`
+    mutation deleteSession($id: String!) {
+  deleteSession(id: $id)
+}
+    `;
+
+export function useDeleteSessionMutation() {
+  return Urql.useMutation<DeleteSessionMutation, DeleteSessionMutationVariables>(DeleteSessionDocument);
+};
 export const ForgotPasswordDocument = gql`
     mutation forgotPassword($email: String!) {
   forgotPassword(email: $email) {
@@ -695,8 +864,8 @@ export function useCourseQuery(options: Omit<Urql.UseQueryArgs<CourseQueryVariab
   return Urql.useQuery<CourseQuery>({ query: CourseDocument, ...options });
 };
 export const CoursesDocument = gql`
-    query courses($page: Int!, $per_page: Int, $search: String, $status: Int) {
-  courses(page: $page, per_page: $per_page, search: $search, status: $status) {
+    query courses($args: PaginatedArgs!) {
+  courses(args: $args) {
     prev
     totalPages
     data {
@@ -741,9 +910,35 @@ export const MeDocument = gql`
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 };
+export const QuizzDocument = gql`
+    query quizz($id: String!) {
+  quizz(id: $id) {
+    ...RegularQuizz
+  }
+}
+    ${RegularQuizzFragmentDoc}`;
+
+export function useQuizzQuery(options: Omit<Urql.UseQueryArgs<QuizzQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<QuizzQuery>({ query: QuizzDocument, ...options });
+};
+export const QuizzesDocument = gql`
+    query quizzes($args: PaginatedArgs!) {
+  quizzes(args: $args) {
+    prev
+    totalPages
+    data {
+      ...RegularQuizz
+    }
+  }
+}
+    ${RegularQuizzFragmentDoc}`;
+
+export function useQuizzesQuery(options: Omit<Urql.UseQueryArgs<QuizzesQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<QuizzesQuery>({ query: QuizzesDocument, ...options });
+};
 export const UsersDocument = gql`
-    query users($page: Int!, $per_page: Int, $status: Int, $search: String) {
-  users(page: $page, per_page: $per_page, status: $status, search: $search) {
+    query users($args: PaginatedArgs!) {
+  users(args: $args) {
     prev
     totalPages
     data {

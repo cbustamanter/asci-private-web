@@ -2,14 +2,13 @@ import {
   Box,
   Button,
   Flex,
+  GridItem,
   IconButton,
-  Input,
   Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  Select,
   SimpleGrid,
   Table,
   TableCaption,
@@ -27,15 +26,11 @@ import { SectionHeading } from "../../../components/admin/SectionHeading";
 import { Wrapper } from "../../../components/admin/Wrapper";
 import { EmptyTable } from "../../../components/EmptyTable";
 import { Paginate } from "../../../components/Paginate";
+import { QuizzesFilter } from "../../../components/QuizzesFilter";
 import { SearchInput } from "../../../components/SearchInput";
 import { SkeletonTable } from "../../../components/SkeletonTable";
-import { UsersFilter } from "../../../components/UsersFilter";
-import {
-  useChangeUserStatusMutation,
-  useUsersQuery,
-} from "../../../generated/graphql";
+import { useQuizzesQuery } from "../../../generated/graphql";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
-import { debounce } from "../../../utils/debounce";
 
 const Index: React.FC<{}> = ({}) => {
   const [args, setVariables] = useState({
@@ -43,12 +38,8 @@ const Index: React.FC<{}> = ({}) => {
     status: 1,
     search: null as null | string,
   });
-  const [{ data, fetching, error }] = useUsersQuery({
-    variables: { args },
-  });
-  const [, changeUserStatus] = useChangeUserStatusMutation();
-
-  const searchUser = (value: string) => {
+  const [{ data, fetching, error }] = useQuizzesQuery({ variables: { args } });
+  const searchQuizz = (value: string) => {
     setVariables({
       page: 1,
       status: args.status,
@@ -77,22 +68,20 @@ const Index: React.FC<{}> = ({}) => {
   }
   return (
     <Wrapper>
-      <SectionHeading title="Estudiantes" />
-      <SimpleGrid minChildWidth="200px" spacingY={[4, 0]} mt={[4, 6]}>
-        <SearchInput
-          placeholder="Buscar por nombre o correo"
-          onInput={searchUser}
-        />
-        <Box ml={[0, 6]} width={["100w", "auto"]}>
-          <UsersFilter onChange={handleFilter} />
-        </Box>
-        <Box ml={["unset", "auto"]}>
-          <NextLink href="/admin/users/new">
-            <Button as={Link} width={["100%", "auto"]}>
-              Crear Estudiante
-            </Button>
-          </NextLink>
-        </Box>
+      <SectionHeading title="Exámenes" />
+      <SimpleGrid
+        // minChildWidth="200px"
+        columns={6}
+        spacingY={[4, 0]}
+        mt={[4, 6]}
+      >
+        <GridItem colSpan={2}>
+          <SearchInput
+            placeholder="Buscar por nombre de curso"
+            onInput={searchQuizz}
+          />
+        </GridItem>
+        <QuizzesFilter onChange={handleFilter} />
       </SimpleGrid>
       {!data && fetching ? (
         <SkeletonTable />
@@ -105,44 +94,28 @@ const Index: React.FC<{}> = ({}) => {
           <Table size="sm">
             <TableCaption>
               <Paginate
-                totalPages={data?.users.totalPages}
-                prev={data?.users.prev}
+                totalPages={data?.quizzes.totalPages}
+                prev={data?.quizzes.prev}
                 currentPage={args.page}
                 onClick={handlePagination}
               />
             </TableCaption>
             <Thead>
               <Tr>
-                <Th>Nombres</Th>
-                <Th>Apellidos</Th>
-                <Th>Correo</Th>
-                <Th>N° Cursos</Th>
-                <Th>Celular</Th>
-                <Th>País</Th>
-                <Th>Género</Th>
+                <Th>Nombre Curso</Th>
                 <Th>Estado</Th>
                 <Th>Acciones</Th>
               </Tr>
             </Thead>
             <Tbody>
-              {!data?.users.data.length ? (
+              {!data?.quizzes.data.length ? (
                 <EmptyTable colspan={7} />
               ) : (
-                data.users.data.map((user, idx) => {
+                data.quizzes.data.map((quizz, idx) => {
                   return (
-                    <Tr key={user.id}>
-                      <Td>{user.names}</Td>
-                      <Td>{user.surnames}</Td>
-                      <Td>{user.email}</Td>
-                      <Td>{user.totalCourses}</Td>
-                      <Td>{user.cellphone}</Td>
-                      <Td>{user.country}</Td>
-                      <Td>{user.genderText}</Td>
-                      <Td>
-                        <Flex>
-                          <Box>{user.statusText}</Box>
-                        </Flex>
-                      </Td>
+                    <Tr key={quizz.id}>
+                      <Td>{quizz.course.courseDetail.name}</Td>
+                      <Td>{quizz.statusText}</Td>
                       <Td color="blue.500">
                         <Menu autoSelect={false}>
                           <MenuButton
@@ -152,21 +125,20 @@ const Index: React.FC<{}> = ({}) => {
                             variant="ghost"
                           />
                           <MenuList>
-                            <NextLink href={`/admin/users/edit/${user.id}`}>
+                            <NextLink href={`/admin/quizzes/edit/${quizz.id}`}>
                               <MenuItem>Editar</MenuItem>
                             </NextLink>
-                            <MenuItem>Asigna Curso</MenuItem>
                             <MenuItem
                               color="red"
-                              onClick={() => {
-                                const status = (user.status ^= 1);
-                                changeUserStatus({
-                                  id: user.id,
-                                  status,
-                                });
-                              }}
+                              // onClick={() => {
+                              //   const status = (user.status ^= 1);
+                              //   changeUserStatus({
+                              //     id: user.id,
+                              //     status,
+                              //   });
+                              // }}
                             >
-                              {user.statusAction}
+                              {quizz.statusAction}
                             </MenuItem>
                           </MenuList>
                         </Menu>
@@ -182,4 +154,5 @@ const Index: React.FC<{}> = ({}) => {
     </Wrapper>
   );
 };
+
 export default withUrqlClient(createUrqlClient)(Index);

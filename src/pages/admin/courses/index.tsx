@@ -34,21 +34,23 @@ import { Paginate } from "../../../components/Paginate";
 import { SearchInput } from "../../../components/SearchInput";
 import { CoursesFilter } from "../../../components/CoursesFilter";
 const Index: React.FC<{}> = ({}) => {
-  const [variables, setVariables] = useState({
+  const [args, setVariables] = useState({
     page: 1,
     status: 1,
     search: null as null | string,
   });
-  const [{ data, fetching, error }] = useCoursesQuery({ variables });
+  const [{ data, fetching, error }] = useCoursesQuery({
+    variables: { args },
+  });
   const [, changeCourseStatus] = useChangeCourseStatusMutation();
   const handlePagination = (page: number) => {
-    setVariables({ page, search: variables.search, status: variables.status });
+    setVariables({ page, search: args.search, status: args.status });
   };
 
   const handleSearch = (value: string) => {
     setVariables({
       page: 1,
-      status: variables.status,
+      status: args.status,
       search: value.toLowerCase(),
     });
   };
@@ -57,7 +59,7 @@ const Index: React.FC<{}> = ({}) => {
     setVariables({
       page: 1,
       status,
-      search: variables.search,
+      search: args.search,
     });
   };
   const handleChangeStatus = (status: number, courseId: string) => {
@@ -99,14 +101,14 @@ const Index: React.FC<{}> = ({}) => {
               <Paginate
                 totalPages={data?.courses.totalPages}
                 prev={data?.courses.prev}
-                currentPage={variables.page}
+                currentPage={args.page}
                 onClick={handlePagination}
               />
             </TableCaption>
             <Thead>
               <Tr>
                 <Th>Nombres del curso</Th>
-                <Th>Estudiantes</Th>
+                <Th>N° Estudiantes</Th>
                 <Th>Estado</Th>
                 <Th>Tiene examen</Th>
                 <Th>Acciones</Th>
@@ -132,16 +134,17 @@ const Index: React.FC<{}> = ({}) => {
                             variant="ghost"
                           />
                           <MenuList>
+                            <NextLink href={`/admin/courses/edit/${course.id}`}>
+                              <MenuItem>Editar</MenuItem>
+                            </NextLink>
                             <MenuItem
+                              color="red"
                               onClick={() =>
                                 handleChangeStatus(course.status, course.id)
                               }
                             >
                               {course.statusAction}
                             </MenuItem>
-                            <NextLink href={`/admin/courses/edit/${course.id}`}>
-                              <MenuItem>Editar</MenuItem>
-                            </NextLink>
                           </MenuList>
                         </Menu>
                       </Td>
