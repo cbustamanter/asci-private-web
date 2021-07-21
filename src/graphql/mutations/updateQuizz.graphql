@@ -1,0 +1,3 @@
+mutation updateQuizz($args: InputQuizz!) {
+  updateQuizz(args: $args)
+}

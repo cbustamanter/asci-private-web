@@ -76,8 +76,8 @@ const Index: React.FC<{}> = ({}) => {
   }
   return (
     <Wrapper>
-      <SearchModal isOpen={isOpen} onClose={onClose} />
-      <Button onClick={() => onOpen()}>Abrir modal</Button>
+      {/* <SearchModal isOpen={isOpen} onClose={onClose} />
+      <Button onClick={() => onOpen()}>Abrir modal</Button> */}
       <SectionHeading title="Estudiantes" />
       <SimpleGrid minChildWidth="200px" spacingY={[4, 0]} mt={[4, 6]}>
         <SearchInput

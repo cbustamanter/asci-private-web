@@ -102,7 +102,9 @@ const Index: React.FC<{}> = ({}) => {
             </TableCaption>
             <Thead>
               <Tr>
-                <Th>Nombre Curso</Th>
+                <Th>Exámenes disponibles</Th>
+                <Th>Disponibilidad</Th>
+                <Th>N° preguntas</Th>
                 <Th>Estado</Th>
                 <Th>Acciones</Th>
               </Tr>
@@ -115,6 +117,8 @@ const Index: React.FC<{}> = ({}) => {
                   return (
                     <Tr key={quizz.id}>
                       <Td>{quizz.course.courseDetail.name}</Td>
+                      <Td>{quizz.quizzDetail?.availableTime} días</Td>
+                      <Td>{quizz.quizzDetail?.questions.length}</Td>
                       <Td>{quizz.statusText}</Td>
                       <Td color="blue.500">
                         <Menu autoSelect={false}>
@@ -128,18 +132,6 @@ const Index: React.FC<{}> = ({}) => {
                             <NextLink href={`/admin/quizzes/edit/${quizz.id}`}>
                               <MenuItem>Editar</MenuItem>
                             </NextLink>
-                            <MenuItem
-                              color="red"
-                              // onClick={() => {
-                              //   const status = (user.status ^= 1);
-                              //   changeUserStatus({
-                              //     id: user.id,
-                              //     status,
-                              //   });
-                              // }}
-                            >
-                              {quizz.statusAction}
-                            </MenuItem>
                           </MenuList>
                         </Menu>
                       </Td>

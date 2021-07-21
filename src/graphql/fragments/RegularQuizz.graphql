@@ -2,7 +2,6 @@ fragment RegularQuizz on Quizz {
   id
   status
   statusText
-  statusAction
   course {
     id
     courseDetail {
@@ -13,7 +12,7 @@ fragment RegularQuizz on Quizz {
   quizzDetail {
     id
     description
-    endDate
+    availableTime
     timeToComplete
     questions {
       id

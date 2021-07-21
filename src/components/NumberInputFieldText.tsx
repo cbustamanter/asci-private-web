@@ -35,7 +35,7 @@ export const NumberInputFieldText: React.FC<NumberInputFieldProps> = ({
       <NumberInput
         _placeholder={_placeholderStyle}
         sx={styles}
-        onChange={(v) => setFieldValue(`${field.name}`, v)}
+        onChange={(v) => setFieldValue(`${field.name}`, parseInt(v))}
         defaultValue={field.value}
         min={0}
       >

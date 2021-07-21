@@ -48,6 +48,12 @@ const invalidateAllQuizzes = (cache: Cache) => {
   invalidateList(cache, key, field);
 };
 
+const invalidateQuizz = (cache: Cache) => {
+  const key = "Query";
+  const field = "quizz";
+  invalidateList(cache, key, field);
+};
+
 const invalidateCourse = (cache: Cache) => {
   const key = "Query";
   const field = "course";
@@ -91,6 +97,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             },
             createCourse: (_result, args, cache, info) => {
               invalidateAllCourses(cache);
+              invalidateAllQuizzes(cache);
             },
             updateCourse: (_result, args, cache, info) => {
               invalidateAllCourses(cache);
@@ -102,6 +109,10 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             },
             changeCourseStatus: (_result, args, cache, info) => {
               invalidateAllCourses(cache);
+            },
+            updateQuizz: (_result, args, cache, info) => {
+              invalidateAllQuizzes(cache);
+              // invalidateQuizz(cache);
             },
             login: (_result, args, cache, info) => {
               betterUpdateQuery<LoginMutation, MeQuery>(

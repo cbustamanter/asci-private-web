@@ -84,6 +84,12 @@ export type ForgotPasswordResponse = {
   response?: Maybe<Scalars['Boolean']>;
 };
 
+export type InputAnswers = {
+  id: Scalars['String'];
+  text: Scalars['String'];
+  isCorrect: Scalars['Boolean'];
+};
+
 export type InputCourseDetail = {
   hasTest?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
@@ -112,16 +118,33 @@ export type InputCourseSessionUpdate = {
   courseSessionFiles?: Maybe<Array<SessionFileType>>;
 };
 
+export type InputQuestion = {
+  id: Scalars['String'];
+  statement: Scalars['String'];
+  score: Scalars['Int'];
+  answers?: Maybe<Array<Maybe<InputAnswers>>>;
+};
+
+export type InputQuizz = {
+  id: Scalars['String'];
+  description: Scalars['String'];
+  availableTime: Scalars['Int'];
+  timeToComplete: Scalars['Int'];
+  questions?: Maybe<Array<Maybe<InputQuestion>>>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createCourse: Scalars['Boolean'];
   updateCourse: Scalars['Boolean'];
   deleteSession: Scalars['Boolean'];
   changeCourseStatus: Scalars['Boolean'];
+  updateQuizz: Scalars['Boolean'];
   createUser: UserResponse;
   login?: Maybe<UserResponse>;
   changeUserStatus: Scalars['Boolean'];
   logout: Scalars['Boolean'];
+  usersToCourse?: Maybe<Scalars['Boolean']>;
   updateUser: UserResponse;
   forgotPassword: ForgotPasswordResponse;
   changePassword: UserResponse;
@@ -152,6 +175,11 @@ export type MutationChangeCourseStatusArgs = {
 };
 
 
+export type MutationUpdateQuizzArgs = {
+  args: InputQuizz;
+};
+
+
 export type MutationCreateUserArgs = {
   input: UserInput;
 };
@@ -166,6 +194,11 @@ export type MutationLoginArgs = {
 export type MutationChangeUserStatusArgs = {
   status: Scalars['Int'];
   id: Scalars['String'];
+};
+
+
+export type MutationUsersToCourseArgs = {
+  ids: Array<Scalars['String']>;
 };
 
 
@@ -280,7 +313,6 @@ export type Quizz = {
   course: Course;
   quizzDetail?: Maybe<QuizzDetail>;
   statusText: Scalars['String'];
-  statusAction: Scalars['String'];
 };
 
 export type QuizzDetail = {
@@ -289,8 +321,8 @@ export type QuizzDetail = {
   updatedAt: Scalars['String'];
   id: Scalars['String'];
   description: Scalars['String'];
-  endDate: Scalars['String'];
-  timeToComplete: Scalars['String'];
+  availableTime: Scalars['Int'];
+  timeToComplete: Scalars['Int'];
   questions: Array<Question>;
 };
 
@@ -360,7 +392,7 @@ export type RegularErrorFragment = (
 
 export type RegularQuizzFragment = (
   { __typename?: 'Quizz' }
-  & Pick<Quizz, 'id' | 'status' | 'statusText' | 'statusAction'>
+  & Pick<Quizz, 'id' | 'status' | 'statusText'>
   & { course: (
     { __typename?: 'Course' }
     & Pick<Course, 'id'>
@@ -370,7 +402,7 @@ export type RegularQuizzFragment = (
     ) }
   ), quizzDetail?: Maybe<(
     { __typename?: 'QuizzDetail' }
-    & Pick<QuizzDetail, 'id' | 'description' | 'endDate' | 'timeToComplete'>
+    & Pick<QuizzDetail, 'id' | 'description' | 'availableTime' | 'timeToComplete'>
     & { questions: Array<(
       { __typename?: 'Question' }
       & Pick<Question, 'id' | 'statement' | 'score'>
@@ -517,6 +549,16 @@ export type UpdateCourseMutationVariables = Exact<{
 export type UpdateCourseMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'updateCourse'>
+);
+
+export type UpdateQuizzMutationVariables = Exact<{
+  args: InputQuizz;
+}>;
+
+
+export type UpdateQuizzMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'updateQuizz'>
 );
 
 export type UpdateUserMutationVariables = Exact<{
@@ -668,7 +710,6 @@ export const RegularQuizzFragmentDoc = gql`
   id
   status
   statusText
-  statusAction
   course {
     id
     courseDetail {
@@ -679,7 +720,7 @@ export const RegularQuizzFragmentDoc = gql`
   quizzDetail {
     id
     description
-    endDate
+    availableTime
     timeToComplete
     questions {
       id
@@ -833,6 +874,15 @@ export const UpdateCourseDocument = gql`
 
 export function useUpdateCourseMutation() {
   return Urql.useMutation<UpdateCourseMutation, UpdateCourseMutationVariables>(UpdateCourseDocument);
+};
+export const UpdateQuizzDocument = gql`
+    mutation updateQuizz($args: InputQuizz!) {
+  updateQuizz(args: $args)
+}
+    `;
+
+export function useUpdateQuizzMutation() {
+  return Urql.useMutation<UpdateQuizzMutation, UpdateQuizzMutationVariables>(UpdateQuizzDocument);
 };
 export const UpdateUserDocument = gql`
     mutation updateUser($id: String!, $input: UserInput!) {
