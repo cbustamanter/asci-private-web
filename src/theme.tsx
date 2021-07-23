@@ -1,10 +1,11 @@
-import { extendTheme, withDefaultColorScheme } from "@chakra-ui/react";
+import { extendTheme } from "@chakra-ui/react";
 import { createBreakpoints } from "@chakra-ui/theme-tools";
+import { ButtonStyle as Button } from "./styles/components/ButtonStyle";
 import { FormLabelStyle as FormLabel } from "./styles/components/FormLabelStyle";
 import { InputOrTextareaStyle as InputOrTextarea } from "./styles/components/InputOrTextareaStyle";
 import { LoginStyle as LoginWrapper } from "./styles/components/LoginStyle";
 import { SelectFieldStyle as SelectField } from "./styles/components/SelectFieldStyle";
-import { ButtonStyle as Button } from "./styles/components/ButtonStyle";
+import { TabStyle as Tabs } from "./styles/components/TabSyle";
 
 const fonts = { mono: `'Menlo', monospace` };
 
@@ -16,10 +17,21 @@ const breakpoints = createBreakpoints({
 });
 
 const theme = extendTheme({
+  styles: {
+    global: {
+      body: {
+        background: "blue.900",
+        overflowX: "hidden",
+      },
+    },
+  },
   colors: {
     blue: {
       100: "#d0eaff",
+      400: "#373F58",
       500: "#1488F3",
+      700: "#232B47",
+      800: "#28314E",
       900: "#1B233E",
     },
     black: "#16161D",
@@ -28,6 +40,7 @@ const theme = extendTheme({
     platedarker: "#1F263E",
     darkred: "#7A0B0B",
     darkplate: "#9399AD",
+    green: "#21D07C",
   },
   components: {
     Button,
@@ -35,6 +48,7 @@ const theme = extendTheme({
     InputOrTextarea,
     FormLabel,
     SelectField,
+    Tabs,
   },
   fonts,
   breakpoints,

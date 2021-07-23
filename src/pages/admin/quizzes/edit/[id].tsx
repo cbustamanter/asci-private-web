@@ -134,7 +134,7 @@ const Edit: React.FC<{}> = ({}) => {
                     label="Plazo de disponibilidad (días)"
                     name="availableTime"
                   />
-                  <HStack>
+                  {/* <HStack>
                     <Heading size="md">Examen del curso</Heading>
                     <Switch
                       size="md"
@@ -143,7 +143,7 @@ const Edit: React.FC<{}> = ({}) => {
                       isChecked={values.status}
                       onChange={() => setFieldValue("hasTest", !values.status)}
                     />
-                  </HStack>
+                  </HStack> */}
                   <HStack spacing="auto">
                     <Heading size="md">Preguntas del examen</Heading>
                     <Heading size="md">

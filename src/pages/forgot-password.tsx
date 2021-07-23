@@ -12,6 +12,8 @@ import { useForgotPasswordMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { S3_URL } from "../utils/constant";
+import { NextSeo } from "next-seo";
 
 interface ForgotPasswordProps {}
 
@@ -21,7 +23,17 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
   const [email, setEmail] = useState<string>();
   const [, forgotPassword] = useForgotPasswordMutation();
   return (
-    <Container minHeight="100vh" alignItems="center" justifyContent="center">
+    <Container
+      background={`url(${S3_URL}/public-assets/bg-1.png)`}
+      backgroundRepeat="no-repeat"
+      backgroundColor="rgba(27, 35, 62, 1)"
+      backgroundBlendMode="color-dodge"
+      backgroundSize="contain"
+      alignItems="center"
+      justifyContent="space-evenly"
+      minHeight="100vh"
+    >
+      <NextSeo title="Recuperar contraseña | ASCI" />
       <LoginWrapper p={6}>
         <Flex
           as={Link}

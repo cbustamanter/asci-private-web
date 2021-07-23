@@ -8,14 +8,22 @@ import { AdminLayout } from "../components/layouts/AdminLayout";
 import "../styles/global.scss";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { IntranetLayout } from "../components/intranet/IntranetLayout";
 
 function MyApp({ Component, pageProps, router }: AppProps) {
   const EmptyLayout = ({ children }: any) => {
     return <>{children}</>;
   };
-  const Layout = router.pathname.startsWith("/admin")
-    ? AdminLayout
-    : EmptyLayout;
+  let Layout: any = EmptyLayout;
+
+  if (router.pathname.startsWith("/admin")) {
+    Layout = AdminLayout;
+  } else if (router.pathname.startsWith("/intranet")) {
+    Layout = IntranetLayout;
+  }
+  // const Layout =
+  //   ? AdminLayout
+  //   : IntranetLayout;
   return (
     <ChakraProvider theme={theme}>
       <Layout>

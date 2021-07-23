@@ -1,12 +1,20 @@
-import { withUrqlClient } from "next-urql";
-import React from "react";
-import { Container } from "../components/Container";
-import { Sidebar } from "../components/Sidebar";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import { Flex } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
+import { LoadingMask } from "../components/LoadingMask";
 import { useIsAuth } from "../utils/useIsAuth";
 
 const Index: React.FC<{}> = ({}) => {
   useIsAuth();
-  return <Container minHeight="100vh">Esto sera la intranet</Container>;
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/intranet/");
+  }, [router]);
+
+  return (
+    <Flex minHeight="100vh">
+      <LoadingMask />
+    </Flex>
+  );
 };
-export default withUrqlClient(createUrqlClient)(Index);
+export default Index;

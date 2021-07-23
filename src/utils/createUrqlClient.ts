@@ -17,6 +17,9 @@ const errorExchange: Exchange =
           if (error?.message.includes("not authenticated")) {
             Router.replace("/login");
           }
+          if (error?.message.includes("You don't have permission")) {
+            Router.replace("/");
+          }
         }
       })
     );

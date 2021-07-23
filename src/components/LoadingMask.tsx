@@ -5,7 +5,7 @@ export const LoadingMask: React.FC<{}> = ({}) => {
   return (
     <Flex
       position="absolute"
-      backgroundColor="rgba(255,255,255,0.7)"
+      backgroundColor="rgba(255,255,255,0.05)"
       height="100%"
       width="100%"
       rounded="2xl"
@@ -28,7 +28,9 @@ export const LoadingMask: React.FC<{}> = ({}) => {
           color="blue.500"
           size="xl"
         />
-        <Text>Cargando...</Text>
+        <Text mt={3} color="white" fontWeight="bold">
+          Cargando...
+        </Text>
       </Flex>
     </Flex>
   );

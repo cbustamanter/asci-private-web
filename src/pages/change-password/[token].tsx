@@ -1,20 +1,20 @@
-import { ViewIcon } from "@chakra-ui/icons";
-import { Box, Button, Icon, IconButton, LightMode } from "@chakra-ui/react";
+import { Box, Button, LightMode } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
+import { withUrqlClient } from "next-urql";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { SectionDescLogin } from "../../components/SectionDescLogin";
-import { SectionHeadingLogin } from "../../components/SectionHeadingLogin";
+import { AlertWrapper } from "../../components/AlertWrapper";
 import { Container } from "../../components/Container";
 import { InputField } from "../../components/InputField";
-import { LoginWrapper } from "../../components/LoginWrapper";
 import { InputFloatingButton } from "../../components/InputFloatingButton";
+import { LoginWrapper } from "../../components/LoginWrapper";
+import { SectionDescLogin } from "../../components/SectionDescLogin";
+import { SectionHeadingLogin } from "../../components/SectionHeadingLogin";
 import { useChangePasswordMutation } from "../../generated/graphql";
-import forgotPassword from "../forgot-password";
-import { useRouter } from "next/router";
-import { toErrorMap } from "../../utils/toErrorMap";
-import { withUrqlClient } from "next-urql";
+import { S3_URL } from "../../utils/constant";
 import { createUrqlClient } from "../../utils/createUrqlClient";
-import { AlertWrapper } from "../../components/AlertWrapper";
+import { toErrorMap } from "../../utils/toErrorMap";
+import { NextSeo } from "next-seo";
 
 const ChangePassword: React.FC<{}> = ({}) => {
   const router = useRouter();
@@ -32,7 +32,17 @@ const ChangePassword: React.FC<{}> = ({}) => {
     setSecondP(type);
   };
   return (
-    <Container minHeight="100vh" alignItems="center" justifyContent="center">
+    <Container
+      background={`url(${S3_URL}/public-assets/bg-1.png)`}
+      backgroundRepeat="no-repeat"
+      backgroundColor="rgba(27, 35, 62, 1)"
+      backgroundBlendMode="color-dodge"
+      backgroundSize="contain"
+      alignItems="center"
+      justifyContent="space-evenly"
+      minHeight="100vh"
+    >
+      <NextSeo title="Cambiar contraseña | ASCI" />
       <LoginWrapper p={6}>
         <SectionHeadingLogin title="Restablecer Contraseña" />
         <SectionDescLogin

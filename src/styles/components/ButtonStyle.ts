@@ -23,6 +23,13 @@ export const ButtonStyle = {
         backgroundColor: "blue.100",
       },
     },
+    "outline-main": {
+      backgroundColor: "transparent",
+      color: "blue.500",
+      rounded: "sm",
+      border: "1px solid",
+      borderColor: "blue.500",
+    },
   },
   // default values for `size` and `variant`
   defaultProps: {

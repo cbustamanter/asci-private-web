@@ -25,8 +25,9 @@ import { useLoginMutation } from "../generated/graphql";
 import { S3_URL } from "../utils/constant";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { toErrorMap } from "../utils/toErrorMap";
-interface loginProps {}
+import { NextSeo } from "next-seo";
 
+interface loginProps {}
 const Login: React.FC<loginProps> = ({}) => {
   const router = useRouter();
   const [, login] = useLoginMutation();
@@ -42,6 +43,7 @@ const Login: React.FC<loginProps> = ({}) => {
       justifyContent="space-evenly"
       minHeight="100vh"
     >
+      <NextSeo title="Ingresar | ASCI" description="Ingresa a ASCI" />
       <Stack color="white" alignItems="center">
         <Box>
           <Heading fontSize="18px" lineHeight="24px" fontWeight="400">
