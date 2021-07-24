@@ -9,6 +9,7 @@ import "../styles/global.scss";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { IntranetLayout } from "../components/intranet/IntranetLayout";
+import { useIsAuth } from "../utils/useIsAuth";
 
 function MyApp({ Component, pageProps, router }: AppProps) {
   const EmptyLayout = ({ children }: any) => {

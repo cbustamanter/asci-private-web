@@ -11,74 +11,107 @@ import {
   ModalBody,
   ModalContent,
   ModalFooter,
+  ModalHeader,
   ModalOverlay,
   SimpleGrid,
   Tag,
   TagCloseButton,
   TagLabel,
+  Text,
   Tooltip,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { useSearchUsersQuery } from "../generated/graphql";
+import {
+  useSearchUsersQuery,
+  useUsersToCourseMutation,
+} from "../generated/graphql";
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
+  title: string;
+  id: string;
 }
 
 export const SearchModal: React.FC<SearchModalProps> = ({
   isOpen,
   onClose,
+  title,
+  id,
 }) => {
   const [arg, setArg] = useState<string>("");
   const [usersSelected, setUsersSelected] = useState<any[]>([]);
-  const [response] = useSearchUsersQuery({ variables: { arg } });
+  const [response] = useSearchUsersQuery({ variables: { courseId: id } });
+  const [, usersToCourse] = useUsersToCourseMutation();
+
   const handleUsers = () => {
-    const userIds = usersSelected.map((v) => v.id);
-    console.log(userIds);
+    const ids = usersSelected.map((v) => v.id);
+    usersToCourse({ ids, courseId: id });
+    handleClose();
   };
+
+  const handleClose = () => {
+    setUsersSelected([]);
+    setArg("");
+    onClose();
+  };
+
+  const handleSearch = (value: string) => {};
+
   return (
     <Modal
       size="xl"
       blockScrollOnMount={false}
+      closeOnEsc={false}
+      closeOnOverlayClick={false}
       isOpen={isOpen}
       onClose={onClose}
       scrollBehavior="inside"
     >
       <ModalOverlay />
       <ModalContent>
-        <InputGroup size="lg" height="68px">
-          <InputLeftElement height="68px">
+        <ModalHeader>
+          {title}
+          <Text fontWeight="400" color="darkplate" fontSize="14.5px">
+            Asigna estudiantes a este curso.
+          </Text>
+        </ModalHeader>
+        {/* <InputGroup size="md">
+          <InputLeftElement>
             <Search2Icon />
           </InputLeftElement>
           <Input
-            height="68px"
             placeholder="Buscar"
             onInput={(e) => {
-              const value = (e.target as HTMLInputElement).value;
+              handleSearch((e.target as HTMLInputElement).value);
               setArg(value);
             }}
           />
-        </InputGroup>
+        </InputGroup> */}
 
         {response.data?.searchUsers?.length || usersSelected.length ? (
-          <ModalBody>
+          <ModalBody maxHeight="40vh">
             {response.data?.searchUsers?.length ? (
               <Flex flexDirection="column">
                 {response.data?.searchUsers.map((user) => {
                   return usersSelected.find((v) => v.id === user.id) ? null : (
                     <List key={user.id}>
-                      <ListItem
-                        p={4}
-                        rounded="lg"
-                        mb={2}
-                        backgroundColor="gray.200"
-                        cursor="pointer"
-                        onClick={() =>
-                          setUsersSelected(usersSelected.concat(user))
-                        }
-                        _hover={{ backgroundColor: "blue.500", color: "white" }}
-                      >{`${user.names} ${user.surnames}`}</ListItem>
+                      <Tooltip label={user.email}>
+                        <ListItem
+                          p={4}
+                          rounded="lg"
+                          mb={2}
+                          backgroundColor="gray.200"
+                          cursor="pointer"
+                          onClick={() =>
+                            setUsersSelected(usersSelected.concat(user))
+                          }
+                          _hover={{
+                            backgroundColor: "blue.500",
+                            color: "white",
+                          }}
+                        >{`${user.names} ${user.surnames}`}</ListItem>
+                      </Tooltip>
                     </List>
                   );
                 })}
@@ -96,15 +129,29 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                     <Tooltip label={v.email}>
                       <TagLabel>{`${v.names} ${v.surnames}`}</TagLabel>
                     </Tooltip>
-                    <TagCloseButton />
+                    <TagCloseButton
+                      onClick={() =>
+                        setUsersSelected(
+                          usersSelected.filter((user) => user.id !== v.id)
+                        )
+                      }
+                    />
                   </Tag>
                 ))}
               </SimpleGrid>
             )}
           </ModalBody>
         ) : null}
-        {usersSelected.length ? (
-          <ModalFooter>
+        <ModalFooter>
+          <Button
+            rounded="lg"
+            colorScheme="gray"
+            ml={3}
+            onClick={() => handleClose()}
+          >
+            Cerrar
+          </Button>
+          {usersSelected.length ? (
             <Button
               rounded="lg"
               colorScheme="blue"
@@ -113,8 +160,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({
             >
               Agregar
             </Button>
-          </ModalFooter>
-        ) : null}
+          ) : null}
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );

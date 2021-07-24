@@ -85,7 +85,7 @@ export type ForgotPasswordResponse = {
 };
 
 export type InputAnswers = {
-  id: Scalars['String'];
+  id?: Maybe<Scalars['String']>;
   text: Scalars['String'];
   isCorrect: Scalars['Boolean'];
 };
@@ -119,7 +119,7 @@ export type InputCourseSessionUpdate = {
 };
 
 export type InputQuestion = {
-  id: Scalars['String'];
+  id?: Maybe<Scalars['String']>;
   statement: Scalars['String'];
   score: Scalars['Int'];
   answers?: Maybe<Array<Maybe<InputAnswers>>>;
@@ -198,6 +198,7 @@ export type MutationChangeUserStatusArgs = {
 
 
 export type MutationUsersToCourseArgs = {
+  courseId: Scalars['String'];
   ids: Array<Scalars['String']>;
 };
 
@@ -290,7 +291,7 @@ export type QueryGetUserArgs = {
 
 
 export type QuerySearchUsersArgs = {
-  arg: Scalars['String'];
+  courseId: Scalars['String'];
 };
 
 export type Question = {
@@ -323,6 +324,7 @@ export type QuizzDetail = {
   description: Scalars['String'];
   availableTime: Scalars['Int'];
   timeToComplete: Scalars['Int'];
+  quizz: Quizz;
   questions: Array<Question>;
 };
 
@@ -575,6 +577,17 @@ export type UpdateUserMutation = (
   ) }
 );
 
+export type UsersToCourseMutationVariables = Exact<{
+  ids: Array<Scalars['String']> | Scalars['String'];
+  courseId: Scalars['String'];
+}>;
+
+
+export type UsersToCourseMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'usersToCourse'>
+);
+
 export type CourseQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
@@ -676,7 +689,7 @@ export type QuizzesQuery = (
 );
 
 export type SearchUsersQueryVariables = Exact<{
-  arg: Scalars['String'];
+  courseId: Scalars['String'];
 }>;
 
 
@@ -895,6 +908,15 @@ export const UpdateUserDocument = gql`
 export function useUpdateUserMutation() {
   return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument);
 };
+export const UsersToCourseDocument = gql`
+    mutation usersToCourse($ids: [String!]!, $courseId: String!) {
+  usersToCourse(ids: $ids, courseId: $courseId)
+}
+    `;
+
+export function useUsersToCourseMutation() {
+  return Urql.useMutation<UsersToCourseMutation, UsersToCourseMutationVariables>(UsersToCourseDocument);
+};
 export const CourseDocument = gql`
     query course($id: String!) {
   course(id: $id) {
@@ -1006,8 +1028,8 @@ export function useQuizzesQuery(options: Omit<Urql.UseQueryArgs<QuizzesQueryVari
   return Urql.useQuery<QuizzesQuery>({ query: QuizzesDocument, ...options });
 };
 export const SearchUsersDocument = gql`
-    query searchUsers($arg: String!) {
-  searchUsers(arg: $arg) {
+    query searchUsers($courseId: String!) {
+  searchUsers(courseId: $courseId) {
     id
     names
     surnames

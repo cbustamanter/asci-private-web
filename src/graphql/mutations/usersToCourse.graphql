@@ -1,0 +1,3 @@
+mutation usersToCourse($ids: [String!]!, $courseId: String!) {
+  usersToCourse(ids: $ids, courseId: $courseId)
+}

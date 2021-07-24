@@ -16,12 +16,12 @@ import "react-datepicker/dist/react-datepicker.css";
 import { SectionHeading } from "../../../components/admin/SectionHeading";
 import { Wrapper } from "../../../components/admin/Wrapper";
 import { DatePickerField } from "../../../components/DatePickerField";
+import { DidacticMaterial } from "../../../components/DidacticMaterial";
 import { InputField } from "../../../components/InputField";
 import { RegularDropzone } from "../../../components/RegularDropzone";
 import { useCreateCourseMutation } from "../../../generated/graphql";
 import { CourseSessions } from "../../../types/courseTypes";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
-import { DidacticMaterial } from "../../../components/DidacticMaterial";
 
 export const sessionObject: CourseSessions = {
   name: "",

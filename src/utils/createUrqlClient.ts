@@ -3,7 +3,12 @@ import { multipartFetchExchange } from "@urql/exchange-multipart-fetch";
 import Router from "next/router";
 import { dedupExchange, Exchange, stringifyVariables } from "urql";
 import { pipe, tap } from "wonka";
-import { LoginMutation, MeDocument, MeQuery } from "../generated/graphql";
+import {
+  LoginMutation,
+  MeDocument,
+  MeQuery,
+  UsersToCourseMutationVariables,
+} from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 import { isServer } from "./isServer";
 
@@ -116,6 +121,9 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             updateQuizz: (_result, args, cache, info) => {
               invalidateAllQuizzes(cache);
               // invalidateQuizz(cache);
+            },
+            usersToCourse: (_result, args, cache, info) => {
+              invalidateAllCourses(cache);
             },
             login: (_result, args, cache, info) => {
               betterUpdateQuery<LoginMutation, MeQuery>(

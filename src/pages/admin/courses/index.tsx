@@ -16,6 +16,7 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import React, { useState } from "react";
@@ -33,6 +34,7 @@ import { BiDotsVerticalRounded } from "react-icons/bi";
 import { Paginate } from "../../../components/Paginate";
 import { SearchInput } from "../../../components/SearchInput";
 import { CoursesFilter } from "../../../components/CoursesFilter";
+import { SearchModal } from "../../../components/SearchModal";
 const Index: React.FC<{}> = ({}) => {
   const [args, setVariables] = useState({
     page: 1,
@@ -43,6 +45,16 @@ const Index: React.FC<{}> = ({}) => {
     variables: { args },
   });
   const [, changeCourseStatus] = useChangeCourseStatusMutation();
+  const [courseId, setCourseId] = useState<string>("");
+  const [courseTitle, setCourseTitle] = useState<string>("");
+  const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const showModal = (id: string, title: string) => {
+    setCourseId(id);
+    setCourseTitle(title);
+    onOpen();
+  };
+
   const handlePagination = (page: number) => {
     setVariables({ page, search: args.search, status: args.status });
   };
@@ -76,6 +88,12 @@ const Index: React.FC<{}> = ({}) => {
   }
   return (
     <Wrapper>
+      <SearchModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={courseTitle}
+        id={courseId}
+      />
       <SectionHeading title="Cursos" />
       <SimpleGrid minChildWidth="200px" spacingY={[4, 0]} mt={[4, 6]}>
         <SearchInput onInput={handleSearch} placeholder="Buscar por nombre" />
@@ -137,6 +155,13 @@ const Index: React.FC<{}> = ({}) => {
                             <NextLink href={`/admin/courses/edit/${course.id}`}>
                               <MenuItem>Editar</MenuItem>
                             </NextLink>
+                            <MenuItem
+                              onClick={() =>
+                                showModal(course.id, course.courseDetail.name)
+                              }
+                            >
+                              Asignar estudiantes
+                            </MenuItem>
                             <MenuItem
                               color="red"
                               onClick={() =>

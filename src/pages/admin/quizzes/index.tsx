@@ -117,8 +117,8 @@ const Index: React.FC<{}> = ({}) => {
                   return (
                     <Tr key={quizz.id}>
                       <Td>{quizz.course.courseDetail.name}</Td>
-                      <Td>{quizz.quizzDetail?.availableTime} días</Td>
-                      <Td>{quizz.quizzDetail?.questions.length}</Td>
+                      <Td>{quizz.quizzDetail?.availableTime || 0} días</Td>
+                      <Td>{quizz.quizzDetail?.questions.length || 0}</Td>
                       <Td>{quizz.statusText}</Td>
                       <Td color="blue.500">
                         <Menu autoSelect={false}>

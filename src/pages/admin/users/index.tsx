@@ -27,7 +27,6 @@ import { Wrapper } from "../../../components/admin/Wrapper";
 import { EmptyTable } from "../../../components/EmptyTable";
 import { Paginate } from "../../../components/Paginate";
 import { SearchInput } from "../../../components/SearchInput";
-import { SearchModal } from "../../../components/SearchModal";
 import { SkeletonTable } from "../../../components/SkeletonTable";
 import { UsersFilter } from "../../../components/UsersFilter";
 import {
@@ -76,8 +75,6 @@ const Index: React.FC<{}> = ({}) => {
   }
   return (
     <Wrapper>
-      {/* <SearchModal isOpen={isOpen} onClose={onClose} />
-      <Button onClick={() => onOpen()}>Abrir modal</Button> */}
       <SectionHeading title="Estudiantes" />
       <SimpleGrid minChildWidth="200px" spacingY={[4, 0]} mt={[4, 6]}>
         <SearchInput
@@ -156,7 +153,6 @@ const Index: React.FC<{}> = ({}) => {
                             <NextLink href={`/admin/users/edit/${user.id}`}>
                               <MenuItem>Editar</MenuItem>
                             </NextLink>
-                            <MenuItem>Asigna Curso</MenuItem>
                             <MenuItem
                               color="red"
                               onClick={() => {

@@ -1,5 +1,13 @@
-query searchUsers($arg: String!) {
-  searchUsers(arg: $arg) {
+# query searchUsers($arg: String!, $courseId: String!) {
+#   searchUsers(arg: $arg, courseId: $courseId) {
+#     id
+#     names
+#     surnames
+#     email
+#   }
+# }
+query searchUsers($courseId: String!) {
+  searchUsers(courseId: $courseId) {
     id
     names
     surnames
