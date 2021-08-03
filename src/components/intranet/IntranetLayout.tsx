@@ -15,7 +15,7 @@ export const IntranetLayout: React.FC<IntranetLayoutProps> = ({ children }) => {
       backgroundColor="blue.900"
     >
       <IntranetSidebar />
-      <GridItem colSpan={9} fontSize="14.5px" color="darkplate">
+      <GridItem colSpan={10} fontSize="14.5px" color="darkplate">
         {children}
       </GridItem>
     </SimpleGrid>

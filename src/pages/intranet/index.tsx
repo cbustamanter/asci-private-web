@@ -17,14 +17,16 @@ import { IntraCard } from "../../components/intranet/IntraCard";
 import { IntraCoursecard } from "../../components/intranet/IntraCoursecard";
 import { IntranetContainer } from "../../components/intranet/IntranetContainer";
 import { LoadingMask } from "../../components/LoadingMask";
+import { useUserCoursesQuery } from "../../generated/graphql";
 import { useIsAuth } from "../../utils/useIsAuth";
 
 const Index: React.FC<{}> = ({}) => {
   const { isChecking, data } = useIsAuth();
+  const [{ data: courses }] = useUserCoursesQuery();
   let body = <LoadingMask />;
   if (data && !isChecking) {
     body = (
-      <IntranetContainer py={8} px={6} title="probando">
+      <IntranetContainer py={8} px={6}>
         <NextSeo title="Mis cursos | ASCI" description="Todos mis cursos" />
         <HStack spacing="auto">
           <Box>
@@ -37,8 +39,15 @@ const Index: React.FC<{}> = ({}) => {
             <Avatar bg="green" h="32px" w="32px" />
           </Box>
         </HStack>
-        <IntraCard />
-        <IntraCard />
+        {courses?.userCourses.map((c) => (
+          <IntraCard
+            key={c.id}
+            title={c.courseDetail.name}
+            description={c.courseDetail.description}
+            coverPhoto={c.courseDetail.coverPhoto as string}
+            id={c.id}
+          />
+        ))}
         <Tabs variant="main" mt={4}>
           <TabList>
             <Tab>PRÓXIMOS CURSOS</Tab>

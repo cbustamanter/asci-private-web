@@ -12,7 +12,7 @@ export const IntranetSidebar: React.FC<IntranetSidebarProps> = ({}) => {
   if (data) {
     body = (
       <GridItem
-        colSpan={3}
+        colSpan={2}
         backgroundColor="blue.900"
         borderRight="1px solid"
         borderRightColor="blue.700"

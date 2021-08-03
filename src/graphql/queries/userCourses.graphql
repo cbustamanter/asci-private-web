@@ -1,0 +1,11 @@
+query userCourses {
+  userCourses {
+    id
+    courseDetail {
+      id
+      name
+      description
+      coverPhoto
+    }
+  }
+}

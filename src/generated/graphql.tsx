@@ -257,6 +257,7 @@ export type Query = {
   users: PaginatedUsers;
   getUser: User;
   searchUsers?: Maybe<Array<User>>;
+  userCourses: Array<Course>;
 };
 
 
@@ -701,6 +702,21 @@ export type SearchUsersQuery = (
   )>> }
 );
 
+export type UserCoursesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UserCoursesQuery = (
+  { __typename?: 'Query' }
+  & { userCourses: Array<(
+    { __typename?: 'Course' }
+    & Pick<Course, 'id'>
+    & { courseDetail: (
+      { __typename?: 'CourseDetail' }
+      & Pick<CourseDetail, 'id' | 'name' | 'description' | 'coverPhoto'>
+    ) }
+  )> }
+);
+
 export type UsersQueryVariables = Exact<{
   args: PaginatedArgs;
 }>;
@@ -1040,6 +1056,23 @@ export const SearchUsersDocument = gql`
 
 export function useSearchUsersQuery(options: Omit<Urql.UseQueryArgs<SearchUsersQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<SearchUsersQuery>({ query: SearchUsersDocument, ...options });
+};
+export const UserCoursesDocument = gql`
+    query userCourses {
+  userCourses {
+    id
+    courseDetail {
+      id
+      name
+      description
+      coverPhoto
+    }
+  }
+}
+    `;
+
+export function useUserCoursesQuery(options: Omit<Urql.UseQueryArgs<UserCoursesQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<UserCoursesQuery>({ query: UserCoursesDocument, ...options });
 };
 export const UsersDocument = gql`
     query users($args: PaginatedArgs!) {
