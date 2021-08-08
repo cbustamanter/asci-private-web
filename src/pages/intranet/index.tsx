@@ -24,6 +24,9 @@ const Index: React.FC<{}> = ({}) => {
   const { isChecking, data } = useIsAuth();
   const [{ data: courses }] = useUserCoursesQuery();
   let body = <LoadingMask />;
+  if (!data) {
+    body = <LoadingMask />;
+  }
   if (data && !isChecking) {
     body = (
       <IntranetContainer py={8} px={6}>
@@ -36,7 +39,7 @@ const Index: React.FC<{}> = ({}) => {
             <Text>Revisa tus cursos completados y los que estás llevando</Text>
           </Box>
           <Box>
-            <Avatar bg="green" h="32px" w="32px" />
+            <Avatar h="32px" w="32px" />
           </Box>
         </HStack>
         {courses?.userCourses.map((c) => (

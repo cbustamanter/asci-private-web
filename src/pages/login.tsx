@@ -9,6 +9,7 @@ import {
   Link,
   Stack,
   Text,
+  Image,
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
@@ -26,6 +27,7 @@ import { S3_URL } from "../utils/constant";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { toErrorMap } from "../utils/toErrorMap";
 import { NextSeo } from "next-seo";
+import { LoginContainer } from "../components/LoginContainer";
 
 interface loginProps {}
 const Login: React.FC<loginProps> = ({}) => {
@@ -33,30 +35,8 @@ const Login: React.FC<loginProps> = ({}) => {
   const [, login] = useLoginMutation();
   const [tokenError, setTokenError] = useState("");
   return (
-    <Container
-      background={`url(${S3_URL}/public-assets/bg-1.png)`}
-      backgroundRepeat="no-repeat"
-      backgroundColor="rgba(27, 35, 62, 1)"
-      backgroundBlendMode="color-dodge"
-      backgroundSize="contain"
-      alignItems="center"
-      justifyContent="space-evenly"
-      minHeight="100vh"
-    >
+    <LoginContainer>
       <NextSeo title="Ingresar | ASCI" description="Ingresa a ASCI" />
-      <Stack color="white" alignItems="center">
-        <Box>
-          <Heading fontSize="18px" lineHeight="24px" fontWeight="400">
-            Bienvenido a
-          </Heading>
-        </Box>
-        <Box>
-          <Heading fontSize="32px" lineHeight="40px">
-            ASCI PERÚ
-          </Heading>
-        </Box>
-        <Box w="44px" h="4px" bg="blue.500"></Box>
-      </Stack>
       <LoginWrapper p={6}>
         <LoginHeader />
         <Formik
@@ -131,18 +111,7 @@ const Login: React.FC<loginProps> = ({}) => {
           )}
         </Formik>
       </LoginWrapper>
-      <Stack color="blue.500">
-        <Stack direction="row" justifyContent="center">
-          <Box>
-            <Icon as={RiFacebookBoxLine} fontSize="xx-large" />
-          </Box>
-          <Box>
-            <Icon as={RiLinkedinBoxLine} fontSize="xx-large" />
-          </Box>
-        </Stack>
-        <Text color="gray.500">www.asciperu.com</Text>
-      </Stack>
-    </Container>
+    </LoginContainer>
   );
 };
 export default withUrqlClient(createUrqlClient)(Login);

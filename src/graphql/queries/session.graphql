@@ -1,0 +1,18 @@
+query session($id: String) {
+  session(id: $id) {
+    id
+    name
+    startTime
+    recordingUrl
+    condition {
+      text
+      status
+    }
+    courseDetail {
+      id
+      name
+      description
+      classUrl
+    }
+  }
+}

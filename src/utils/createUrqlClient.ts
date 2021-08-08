@@ -88,6 +88,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
           CourseDetail: () => null,
           CourseSession: () => null,
           PaginatedQuizzes: () => null,
+          SessionStatus: () => null,
         },
         resolvers: {
           Query: {},

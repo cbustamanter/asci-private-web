@@ -3,6 +3,7 @@ import { createBreakpoints } from "@chakra-ui/theme-tools";
 import { ButtonStyle as Button } from "./styles/components/ButtonStyle";
 import { FormLabelStyle as FormLabel } from "./styles/components/FormLabelStyle";
 import { InputOrTextareaStyle as InputOrTextarea } from "./styles/components/InputOrTextareaStyle";
+import { LinkStyle as Link } from "./styles/components/LinkStyle";
 import { LoginStyle as LoginWrapper } from "./styles/components/LoginStyle";
 import { SelectFieldStyle as SelectField } from "./styles/components/SelectFieldStyle";
 import { TabStyle as Tabs } from "./styles/components/TabSyle";
@@ -49,6 +50,7 @@ const theme = extendTheme({
     FormLabel,
     SelectField,
     Tabs,
+    Link,
   },
   fonts,
   breakpoints,

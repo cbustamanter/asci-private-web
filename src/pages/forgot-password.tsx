@@ -14,6 +14,7 @@ import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { S3_URL } from "../utils/constant";
 import { NextSeo } from "next-seo";
+import { LoginContainer } from "../components/LoginContainer";
 
 interface ForgotPasswordProps {}
 
@@ -23,16 +24,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
   const [email, setEmail] = useState<string>();
   const [, forgotPassword] = useForgotPasswordMutation();
   return (
-    <Container
-      background={`url(${S3_URL}/public-assets/bg-1.png)`}
-      backgroundRepeat="no-repeat"
-      backgroundColor="rgba(27, 35, 62, 1)"
-      backgroundBlendMode="color-dodge"
-      backgroundSize="contain"
-      alignItems="center"
-      justifyContent="space-evenly"
-      minHeight="100vh"
-    >
+    <LoginContainer>
       <NextSeo title="Recuperar contraseña | ASCI" />
       <LoginWrapper p={6}>
         <Flex
@@ -103,7 +95,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
           </>
         )}
       </LoginWrapper>
-    </Container>
+    </LoginContainer>
   );
 };
 export default withUrqlClient(createUrqlClient)(ForgotPassword);

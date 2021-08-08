@@ -69,6 +69,7 @@ export type CourseSession = {
   recordingUrl: Scalars['String'];
   courseDetail: CourseDetail;
   courseSessionFiles?: Maybe<Array<SessionFile>>;
+  condition: SessionStatus;
 };
 
 
@@ -251,6 +252,8 @@ export type Query = {
   __typename?: 'Query';
   courses: PaginatedCourses;
   course?: Maybe<Course>;
+  userCourse: CourseDetail;
+  session?: Maybe<CourseSession>;
   quizzes: PaginatedQuizzes;
   quizz: Quizz;
   me?: Maybe<User>;
@@ -268,6 +271,16 @@ export type QueryCoursesArgs = {
 
 export type QueryCourseArgs = {
   id: Scalars['String'];
+};
+
+
+export type QueryUserCourseArgs = {
+  courseId: Scalars['String'];
+};
+
+
+export type QuerySessionArgs = {
+  id?: Maybe<Scalars['String']>;
 };
 
 
@@ -349,6 +362,12 @@ export type SessionFileType = {
   filename?: Maybe<Scalars['String']>;
   mimetype?: Maybe<Scalars['String']>;
   encoding?: Maybe<Scalars['String']>;
+};
+
+export type SessionStatus = {
+  __typename?: 'SessionStatus';
+  text: Scalars['String'];
+  status: Scalars['Int'];
 };
 
 
@@ -700,6 +719,50 @@ export type SearchUsersQuery = (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'names' | 'surnames' | 'email'>
   )>> }
+);
+
+export type SessionQueryVariables = Exact<{
+  id?: Maybe<Scalars['String']>;
+}>;
+
+
+export type SessionQuery = (
+  { __typename?: 'Query' }
+  & { session?: Maybe<(
+    { __typename?: 'CourseSession' }
+    & Pick<CourseSession, 'id' | 'name' | 'startTime' | 'recordingUrl'>
+    & { condition: (
+      { __typename?: 'SessionStatus' }
+      & Pick<SessionStatus, 'text' | 'status'>
+    ), courseDetail: (
+      { __typename?: 'CourseDetail' }
+      & Pick<CourseDetail, 'id' | 'name' | 'description' | 'classUrl'>
+    ) }
+  )> }
+);
+
+export type UserCourseQueryVariables = Exact<{
+  courseId: Scalars['String'];
+}>;
+
+
+export type UserCourseQuery = (
+  { __typename?: 'Query' }
+  & { userCourse: (
+    { __typename?: 'CourseDetail' }
+    & Pick<CourseDetail, 'id' | 'name' | 'description' | 'hasTest' | 'startDate' | 'endDate' | 'coverPhoto'>
+    & { courseSessions: Array<(
+      { __typename?: 'CourseSession' }
+      & Pick<CourseSession, 'id' | 'name'>
+      & { courseSessionFiles?: Maybe<Array<(
+        { __typename?: 'SessionFile' }
+        & Pick<SessionFile, 'id' | 'name' | 'filename'>
+      )>>, condition: (
+        { __typename?: 'SessionStatus' }
+        & Pick<SessionStatus, 'status' | 'text'>
+      ) }
+    )> }
+  ) }
 );
 
 export type UserCoursesQueryVariables = Exact<{ [key: string]: never; }>;
@@ -1056,6 +1119,60 @@ export const SearchUsersDocument = gql`
 
 export function useSearchUsersQuery(options: Omit<Urql.UseQueryArgs<SearchUsersQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<SearchUsersQuery>({ query: SearchUsersDocument, ...options });
+};
+export const SessionDocument = gql`
+    query session($id: String) {
+  session(id: $id) {
+    id
+    name
+    startTime
+    recordingUrl
+    condition {
+      text
+      status
+    }
+    courseDetail {
+      id
+      name
+      description
+      classUrl
+    }
+  }
+}
+    `;
+
+export function useSessionQuery(options: Omit<Urql.UseQueryArgs<SessionQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<SessionQuery>({ query: SessionDocument, ...options });
+};
+export const UserCourseDocument = gql`
+    query userCourse($courseId: String!) {
+  userCourse(courseId: $courseId) {
+    id
+    name
+    description
+    hasTest
+    startDate
+    endDate
+    coverPhoto
+    courseSessions {
+      id
+      name
+      courseSessionFiles {
+        id
+        name
+        filename
+      }
+      condition {
+        status
+        text
+      }
+    }
+  }
+}
+    `;
+
+export function useUserCourseQuery(options: Omit<Urql.UseQueryArgs<UserCourseQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<UserCourseQuery>({ query: UserCourseDocument, ...options });
 };
 export const UserCoursesDocument = gql`
     query userCourses {
