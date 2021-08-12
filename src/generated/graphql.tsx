@@ -131,6 +131,7 @@ export type InputQuizz = {
   description: Scalars['String'];
   availableTime: Scalars['Int'];
   timeToComplete: Scalars['Int'];
+  minScore: Scalars['Int'];
   questions?: Maybe<Array<Maybe<InputQuestion>>>;
 };
 
@@ -140,6 +141,7 @@ export type Mutation = {
   updateCourse: Scalars['Boolean'];
   deleteSession: Scalars['Boolean'];
   changeCourseStatus: Scalars['Boolean'];
+  performQuizz: PerformedQuizz;
   updateQuizz: Scalars['Boolean'];
   createUser: UserResponse;
   login?: Maybe<UserResponse>;
@@ -173,6 +175,12 @@ export type MutationDeleteSessionArgs = {
 export type MutationChangeCourseStatusArgs = {
   status: Scalars['Int'];
   id: Scalars['String'];
+};
+
+
+export type MutationPerformQuizzArgs = {
+  quizzId: Scalars['String'];
+  userId: Scalars['String'];
 };
 
 
@@ -248,11 +256,20 @@ export type PaginatedUsers = {
   data: Array<User>;
 };
 
+export type PerformedQuizz = {
+  __typename?: 'PerformedQuizz';
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  id: Scalars['String'];
+  quizz: Quizz;
+  user: User;
+};
+
 export type Query = {
   __typename?: 'Query';
   courses: PaginatedCourses;
   course?: Maybe<Course>;
-  userCourse: CourseDetail;
+  userCourse: Course;
   session?: Maybe<CourseSession>;
   quizzes: PaginatedQuizzes;
   quizz: Quizz;
@@ -338,6 +355,7 @@ export type QuizzDetail = {
   description: Scalars['String'];
   availableTime: Scalars['Int'];
   timeToComplete: Scalars['Int'];
+  minScore: Scalars['Int'];
   quizz: Quizz;
   questions: Array<Question>;
 };
@@ -385,6 +403,7 @@ export type User = {
   role: Scalars['Int'];
   country: Scalars['String'];
   courses?: Maybe<Array<Course>>;
+  performedQuizz: PerformedQuizz;
   genderText: Scalars['String'];
   statusText: Scalars['String'];
   statusAction: Scalars['String'];
@@ -424,7 +443,7 @@ export type RegularQuizzFragment = (
     ) }
   ), quizzDetail?: Maybe<(
     { __typename?: 'QuizzDetail' }
-    & Pick<QuizzDetail, 'id' | 'description' | 'availableTime' | 'timeToComplete'>
+    & Pick<QuizzDetail, 'id' | 'description' | 'availableTime' | 'timeToComplete' | 'minScore'>
     & { questions: Array<(
       { __typename?: 'Question' }
       & Pick<Question, 'id' | 'statement' | 'score'>
@@ -559,6 +578,20 @@ export type LoginMutation = (
     { __typename?: 'UserResponse' }
     & RegularUserResponseFragment
   )> }
+);
+
+export type PerformQuizzMutationVariables = Exact<{
+  userId: Scalars['String'];
+  quizzId: Scalars['String'];
+}>;
+
+
+export type PerformQuizzMutation = (
+  { __typename?: 'Mutation' }
+  & { performQuizz: (
+    { __typename?: 'PerformedQuizz' }
+    & Pick<PerformedQuizz, 'id'>
+  ) }
 );
 
 export type UpdateCourseMutationVariables = Exact<{
@@ -749,19 +782,30 @@ export type UserCourseQueryVariables = Exact<{
 export type UserCourseQuery = (
   { __typename?: 'Query' }
   & { userCourse: (
-    { __typename?: 'CourseDetail' }
-    & Pick<CourseDetail, 'id' | 'name' | 'description' | 'hasTest' | 'startDate' | 'endDate' | 'coverPhoto'>
-    & { courseSessions: Array<(
-      { __typename?: 'CourseSession' }
-      & Pick<CourseSession, 'id' | 'name'>
-      & { courseSessionFiles?: Maybe<Array<(
-        { __typename?: 'SessionFile' }
-        & Pick<SessionFile, 'id' | 'name' | 'filename'>
-      )>>, condition: (
-        { __typename?: 'SessionStatus' }
-        & Pick<SessionStatus, 'status' | 'text'>
-      ) }
-    )> }
+    { __typename?: 'Course' }
+    & Pick<Course, 'id'>
+    & { quizz?: Maybe<(
+      { __typename?: 'Quizz' }
+      & Pick<Quizz, 'id' | 'status'>
+      & { quizzDetail?: Maybe<(
+        { __typename?: 'QuizzDetail' }
+        & Pick<QuizzDetail, 'id' | 'availableTime'>
+      )> }
+    )>, courseDetail: (
+      { __typename?: 'CourseDetail' }
+      & Pick<CourseDetail, 'name' | 'description' | 'hasTest' | 'startDate' | 'endDate' | 'coverPhoto'>
+      & { courseSessions: Array<(
+        { __typename?: 'CourseSession' }
+        & Pick<CourseSession, 'id' | 'name' | 'startTime' | 'endTime'>
+        & { courseSessionFiles?: Maybe<Array<(
+          { __typename?: 'SessionFile' }
+          & Pick<SessionFile, 'id' | 'name' | 'filename'>
+        )>>, condition: (
+          { __typename?: 'SessionStatus' }
+          & Pick<SessionStatus, 'status' | 'text'>
+        ) }
+      )> }
+    ) }
   ) }
 );
 
@@ -814,6 +858,7 @@ export const RegularQuizzFragmentDoc = gql`
     description
     availableTime
     timeToComplete
+    minScore
     questions {
       id
       statement
@@ -953,6 +998,17 @@ export const LoginDocument = gql`
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
+export const PerformQuizzDocument = gql`
+    mutation performQuizz($userId: String!, $quizzId: String!) {
+  performQuizz(userId: $userId, quizzId: $quizzId) {
+    id
+  }
+}
+    `;
+
+export function usePerformQuizzMutation() {
+  return Urql.useMutation<PerformQuizzMutation, PerformQuizzMutationVariables>(PerformQuizzDocument);
 };
 export const UpdateCourseDocument = gql`
     mutation updateCourse($id: String!, $courseDetail: InputCourseDetail, $courseSessions: [InputCourseSessionUpdate]) {
@@ -1148,23 +1204,35 @@ export const UserCourseDocument = gql`
     query userCourse($courseId: String!) {
   userCourse(courseId: $courseId) {
     id
-    name
-    description
-    hasTest
-    startDate
-    endDate
-    coverPhoto
-    courseSessions {
+    quizz {
       id
+      status
+      quizzDetail {
+        id
+        availableTime
+      }
+    }
+    courseDetail {
       name
-      courseSessionFiles {
+      description
+      hasTest
+      startDate
+      endDate
+      coverPhoto
+      courseSessions {
         id
         name
-        filename
-      }
-      condition {
-        status
-        text
+        startTime
+        endTime
+        courseSessionFiles {
+          id
+          name
+          filename
+        }
+        condition {
+          status
+          text
+        }
       }
     }
   }

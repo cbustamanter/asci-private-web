@@ -1,8 +1,4 @@
 import {
-  Avatar,
-  Box,
-  Heading,
-  HStack,
   SimpleGrid,
   Tab,
   TabList,
@@ -13,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { NextSeo } from "next-seo";
 import React from "react";
+import { HeadingSection } from "../../components/intranet/HeadingSection";
 import { IntraCard } from "../../components/intranet/IntraCard";
 import { IntraCoursecard } from "../../components/intranet/IntraCoursecard";
 import { IntranetContainer } from "../../components/intranet/IntranetContainer";
@@ -31,17 +28,10 @@ const Index: React.FC<{}> = ({}) => {
     body = (
       <IntranetContainer py={8} px={6}>
         <NextSeo title="Mis cursos | ASCI" description="Todos mis cursos" />
-        <HStack spacing="auto">
-          <Box>
-            <Heading color="white" fontSize="28px" mb={3}>
-              Mis cursos
-            </Heading>
-            <Text>Revisa tus cursos completados y los que estás llevando</Text>
-          </Box>
-          <Box>
-            <Avatar h="32px" w="32px" />
-          </Box>
-        </HStack>
+        <HeadingSection
+          title="Mis cursos"
+          subtitle="Revisa tus cursos completados y los que estás llevando"
+        />
         {courses?.userCourses.map((c) => (
           <IntraCard
             key={c.id}

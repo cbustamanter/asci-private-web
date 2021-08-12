@@ -1,23 +1,35 @@
 query userCourse($courseId: String!) {
   userCourse(courseId: $courseId) {
     id
-    name
-    description
-    hasTest
-    startDate
-    endDate
-    coverPhoto
-    courseSessions {
+    quizz {
       id
+      status
+      quizzDetail {
+        id
+        availableTime
+      }
+    }
+    courseDetail {
       name
-      courseSessionFiles {
+      description
+      hasTest
+      startDate
+      endDate
+      coverPhoto
+      courseSessions {
         id
         name
-        filename
-      }
-      condition {
-        status
-        text
+        startTime
+        endTime
+        courseSessionFiles {
+          id
+          name
+          filename
+        }
+        condition {
+          status
+          text
+        }
       }
     }
   }

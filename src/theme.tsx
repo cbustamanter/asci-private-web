@@ -7,6 +7,7 @@ import { LinkStyle as Link } from "./styles/components/LinkStyle";
 import { LoginStyle as LoginWrapper } from "./styles/components/LoginStyle";
 import { SelectFieldStyle as SelectField } from "./styles/components/SelectFieldStyle";
 import { TabStyle as Tabs } from "./styles/components/TabSyle";
+import { SidebarItemStyle as SidebarItem } from "./styles/components/SidebarItemStyle";
 
 const fonts = { mono: `'Menlo', monospace` };
 
@@ -31,6 +32,7 @@ const theme = extendTheme({
       100: "#d0eaff",
       400: "#373F58",
       500: "#1488F3",
+      600: "#434B69",
       700: "#232B47",
       800: "#28314E",
       900: "#1B233E",
@@ -51,6 +53,7 @@ const theme = extendTheme({
     SelectField,
     Tabs,
     Link,
+    SidebarItem,
   },
   fonts,
   breakpoints,

@@ -1,0 +1,5 @@
+mutation performQuizz($userId: String!, $quizzId: String!) {
+  performQuizz(userId: $userId, quizzId: $quizzId) {
+    id
+  }
+}

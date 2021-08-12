@@ -30,6 +30,10 @@ export const ButtonStyle = {
       border: "1px solid",
       borderColor: "blue.500",
     },
+    green: {
+      bg: "green",
+      color: "white",
+    },
   },
   // default values for `size` and `variant`
   defaultProps: {

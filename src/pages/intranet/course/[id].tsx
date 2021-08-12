@@ -1,6 +1,4 @@
 import {
-  AspectRatio,
-  Avatar,
   Box,
   Button,
   Flex,
@@ -16,21 +14,25 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import getYouTubeID from "get-youtube-id";
 import moment from "moment";
 import { withUrqlClient } from "next-urql";
+import router from "next/router";
 import React, { useEffect, useState } from "react";
 import {
   RiArrowDownFill,
-  RiArrowLeftSLine,
   RiCalendar2Fill,
   RiCheckDoubleLine,
   RiDraftFill,
   RiFolderOpenFill,
 } from "react-icons/ri";
 import { CourseIcon } from "../../../components/Icons/CourseIcon";
+import { BackButton } from "../../../components/intranet/BackButton";
 import { IntranetContainer } from "../../../components/intranet/IntranetContainer";
 import { LoadingMask } from "../../../components/LoadingMask";
 import {
+  useMeQuery,
+  usePerformQuizzMutation,
   useSessionQuery,
   useUserCourseQuery,
 } from "../../../generated/graphql";
@@ -39,12 +41,14 @@ import { createUrqlClient } from "../../../utils/createUrqlClient";
 import { isServer } from "../../../utils/isServer";
 import { dateRangeDDMM } from "../../../utils/StringDate";
 import { useGetStringId } from "../../../utils/useGetStringId";
-import getYouTubeID from "get-youtube-id";
 
 const Course: React.FC<{}> = ({}) => {
   const id = useGetStringId();
+  const [{ data: meData }] = useMeQuery();
   const [active, setActive] = useState<number>(0);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [, performQuizz] = usePerformQuizzMutation();
+  const [isQuizzAvailable, setIsQuizzAvailable] = useState(false);
   const [{ data, fetching }] = useUserCourseQuery({
     pause: isServer(),
     variables: { courseId: id },
@@ -55,10 +59,18 @@ const Course: React.FC<{}> = ({}) => {
   });
   useEffect(() => {
     if (data && !fetching) {
-      const sessions = [...data.userCourse.courseSessions];
+      const sessions = [...data.userCourse.courseDetail.courseSessions];
       const started = sessions.findIndex((s) => s.condition.status == 2);
       const aboutToStart = sessions.findIndex((s) => s.condition.status == 3);
       const upcoming = sessions.findIndex((s) => s.condition.status == 4);
+      const availability = data.userCourse.quizz?.quizzDetail?.availableTime; // in days
+      const courseEndDate = moment(
+        data.userCourse.courseDetail.endDate
+      ).toDate();
+      const quizzAvailability = moment(courseEndDate)
+        .add(availability, "d")
+        .toDate();
+      const now = moment().toDate();
       if (started > -1) {
         setActive(started);
         setSessionId(sessions[started].id);
@@ -68,6 +80,10 @@ const Course: React.FC<{}> = ({}) => {
       } else if (upcoming > -1) {
         setActive(upcoming);
         setSessionId(sessions[upcoming].id);
+      }
+
+      if (now > courseEndDate && now <= quizzAvailability) {
+        setIsQuizzAvailable(true);
       }
     }
   }, [data]);
@@ -79,6 +95,16 @@ const Course: React.FC<{}> = ({}) => {
     return status == 3 || status == 4;
   };
 
+  const handlePerformQuizz = async () => {
+    const response = await performQuizz({
+      quizzId: data?.userCourse.quizz?.id as string,
+      userId: meData?.me?.id as string,
+    });
+    if (response.data) {
+      router.replace(`/intranet/quizzes/${response.data.performQuizz.id}`);
+    }
+  };
+
   return (
     <IntranetContainer
       py={8}
@@ -88,23 +114,18 @@ const Course: React.FC<{}> = ({}) => {
     >
       {data && !fetching && (
         <>
-          <HStack spacing="auto">
-            <HStack justifyContent="center" fontWeight="bold">
-              <Icon as={RiArrowLeftSLine} fontSize="md" />
-              <Text textTransform="uppercase" fontSize="xs">
-                Regresar
-              </Text>
-            </HStack>
-            <Box>
-              <Avatar h="32px" w="32px" />
-            </Box>
-          </HStack>
+          <BackButton text="Regresar" />
           <Heading mt={4} color="white" fontSize="x-large">
-            {data?.userCourse.name}
+            {data?.userCourse.courseDetail.name}
           </Heading>
-          <Flex justifyContent="flex-end">
-            <Button>Clase en vivo</Button>
-          </Flex>
+          {!isQuizzAvailable && (
+            <Flex justifyContent="flex-end">
+              <Button variant="green" onClick={() => handlePerformQuizz()}>
+                Realizar examen
+              </Button>
+            </Flex>
+          )}
+
           <SimpleGrid columns={12} spacing={4} mt={4} pb={6}>
             <GridItem
               colSpan={7}
@@ -202,7 +223,7 @@ const Course: React.FC<{}> = ({}) => {
               minHeight="384px"
               overflowY="auto"
             >
-              {data?.userCourse.courseSessions.map((s, idx) => (
+              {data?.userCourse.courseDetail.courseSessions.map((s, idx) => (
                 <Stack
                   p={4}
                   key={s.id}
@@ -277,7 +298,7 @@ const Course: React.FC<{}> = ({}) => {
             <GridItem colSpan={4}>
               <Stack position="relative" align="center" justifyContent="center">
                 <Image
-                  src={`${S3_URL}/cover-photos/${data?.userCourse.coverPhoto}`}
+                  src={`${S3_URL}/cover-photos/${data?.userCourse.courseDetail.coverPhoto}`}
                   maxH="142px"
                   borderRadius="md"
                   w="full"
@@ -289,7 +310,7 @@ const Course: React.FC<{}> = ({}) => {
                   borderRadius="md"
                 >
                   <Text fontWeight="bold" color="white" fontSize="md">
-                    {data.userCourse.name}
+                    {data.userCourse.courseDetail.name}
                   </Text>
                 </Stack>
               </Stack>
@@ -301,8 +322,8 @@ const Course: React.FC<{}> = ({}) => {
                   </HStack>
                   <Text>
                     {dateRangeDDMM(
-                      data?.userCourse.startDate,
-                      data?.userCourse.endDate
+                      data?.userCourse.courseDetail.startDate,
+                      data?.userCourse.courseDetail.endDate
                     )}
                   </Text>
                 </HStack>
@@ -322,7 +343,7 @@ const Course: React.FC<{}> = ({}) => {
                 fontWeight="700"
               >
                 <Icon as={RiDraftFill} />
-                {data?.userCourse.hasTest ? (
+                {data?.userCourse.courseDetail.hasTest ? (
                   <Text>
                     Al finalizar el curso y aprobar el examen, recibirás un
                     certificado de ASCI Perú.
@@ -335,7 +356,7 @@ const Course: React.FC<{}> = ({}) => {
                 )}
               </HStack>
               <Text whiteSpace="break-spaces">
-                {data?.userCourse.description}
+                {data?.userCourse.courseDetail.description}
               </Text>
             </GridItem>
           </SimpleGrid>

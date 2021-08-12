@@ -64,6 +64,7 @@ const Edit: React.FC<{}> = ({}) => {
             description: data.quizz.quizzDetail?.description || "",
             availableTime: data.quizz.quizzDetail?.availableTime || 0,
             timeToComplete: data.quizz.quizzDetail?.timeToComplete || 0,
+            minScore: data.quizz.quizzDetail?.minScore as number,
             questions: data.quizz.quizzDetail?.questions,
             status: !!data.quizz.status,
           }}
@@ -92,6 +93,7 @@ const Edit: React.FC<{}> = ({}) => {
                 availableTime: values.availableTime,
                 description: values.description,
                 timeToComplete: values.timeToComplete,
+                minScore: values.minScore,
                 questions: values.questions,
               },
             });
@@ -134,6 +136,7 @@ const Edit: React.FC<{}> = ({}) => {
                     label="Plazo de disponibilidad (días)"
                     name="availableTime"
                   />
+                  <NumberInputFieldText label="Nota mínima" name="minScore" />
                   {/* <HStack>
                     <Heading size="md">Examen del curso</Heading>
                     <Switch

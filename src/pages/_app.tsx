@@ -7,6 +7,8 @@ import { AdminLayout } from "../components/layouts/AdminLayout";
 import "../styles/global.scss";
 import theme from "../theme";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { store } from "../redux/store/store";
+import { Provider } from "react-redux";
 
 function MyApp({ Component, pageProps, router }: AppProps) {
   const EmptyLayout = ({ children }: any) => {
@@ -20,11 +22,13 @@ function MyApp({ Component, pageProps, router }: AppProps) {
     Layout = IntranetLayout;
   }
   return (
-    <ChakraProvider theme={theme}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </ChakraProvider>
+    <Provider store={store}>
+      <ChakraProvider theme={theme}>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ChakraProvider>
+    </Provider>
   );
 }
 
