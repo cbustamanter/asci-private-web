@@ -1,0 +1,18 @@
+query userQuizzes {
+  userQuizzes {
+    id
+    updatedAt
+    quizz {
+      id
+      course {
+        id
+        courseDetail {
+          id
+          name
+          description
+          coverPhoto
+        }
+      }
+    }
+  }
+}

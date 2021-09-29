@@ -135,6 +135,10 @@ export type InputQuizz = {
   questions?: Maybe<Array<Maybe<InputQuestion>>>;
 };
 
+export type InputSolvequizz = {
+  answersIds: Array<Scalars['String']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createCourse: Scalars['Boolean'];
@@ -142,6 +146,7 @@ export type Mutation = {
   deleteSession: Scalars['Boolean'];
   changeCourseStatus: Scalars['Boolean'];
   performQuizz: PerformedQuizz;
+  solveQuizz: QuizzResult;
   updateQuizz: Scalars['Boolean'];
   createUser: UserResponse;
   login?: Maybe<UserResponse>;
@@ -181,6 +186,12 @@ export type MutationChangeCourseStatusArgs = {
 export type MutationPerformQuizzArgs = {
   quizzId: Scalars['String'];
   userId: Scalars['String'];
+};
+
+
+export type MutationSolveQuizzArgs = {
+  input: InputSolvequizz;
+  id: Scalars['String'];
 };
 
 
@@ -263,6 +274,10 @@ export type PerformedQuizz = {
   id: Scalars['String'];
   quizz: Quizz;
   user: User;
+  status: Scalars['Int'];
+  finalScore: Scalars['Int'];
+  expirationDate: Scalars['String'];
+  solved: Array<SolvedQuizz>;
 };
 
 export type Query = {
@@ -271,6 +286,8 @@ export type Query = {
   course?: Maybe<Course>;
   userCourse: Course;
   session?: Maybe<CourseSession>;
+  performedQuizz: PerformedQuizz;
+  userQuizzes: Array<PerformedQuizz>;
   quizzes: PaginatedQuizzes;
   quizz: Quizz;
   me?: Maybe<User>;
@@ -298,6 +315,11 @@ export type QueryUserCourseArgs = {
 
 export type QuerySessionArgs = {
   id?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryPerformedQuizzArgs = {
+  id: Scalars['String'];
 };
 
 
@@ -344,6 +366,8 @@ export type Quizz = {
   status: Scalars['Int'];
   course: Course;
   quizzDetail?: Maybe<QuizzDetail>;
+  performedQuizz: Array<PerformedQuizz>;
+  attemptsLeft: Scalars['Int'];
   statusText: Scalars['String'];
 };
 
@@ -358,6 +382,13 @@ export type QuizzDetail = {
   minScore: Scalars['Int'];
   quizz: Quizz;
   questions: Array<Question>;
+};
+
+export type QuizzResult = {
+  __typename?: 'QuizzResult';
+  score: Scalars['Int'];
+  approved: Scalars['Boolean'];
+  attemptsLeft: Scalars['Int'];
 };
 
 export type SessionFile = {
@@ -386,6 +417,17 @@ export type SessionStatus = {
   __typename?: 'SessionStatus';
   text: Scalars['String'];
   status: Scalars['Int'];
+};
+
+export type SolvedQuizz = {
+  __typename?: 'SolvedQuizz';
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  id: Scalars['String'];
+  answerId: Scalars['String'];
+  statement: Scalars['String'];
+  text: Scalars['String'];
+  isCorrect: Scalars['Boolean'];
 };
 
 
@@ -594,6 +636,20 @@ export type PerformQuizzMutation = (
   ) }
 );
 
+export type SolveQuizzMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: InputSolvequizz;
+}>;
+
+
+export type SolveQuizzMutation = (
+  { __typename?: 'Mutation' }
+  & { solveQuizz: (
+    { __typename?: 'QuizzResult' }
+    & Pick<QuizzResult, 'score' | 'approved' | 'attemptsLeft'>
+  ) }
+);
+
 export type UpdateCourseMutationVariables = Exact<{
   id: Scalars['String'];
   courseDetail?: Maybe<InputCourseDetail>;
@@ -711,6 +767,42 @@ export type MeQuery = (
   )> }
 );
 
+export type PerformedQuizzQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type PerformedQuizzQuery = (
+  { __typename?: 'Query' }
+  & { performedQuizz: (
+    { __typename?: 'PerformedQuizz' }
+    & Pick<PerformedQuizz, 'id' | 'expirationDate' | 'finalScore' | 'status'>
+    & { quizz: (
+      { __typename?: 'Quizz' }
+      & Pick<Quizz, 'id' | 'status' | 'attemptsLeft'>
+      & { quizzDetail?: Maybe<(
+        { __typename?: 'QuizzDetail' }
+        & Pick<QuizzDetail, 'id' | 'availableTime' | 'description' | 'minScore'>
+        & { questions: Array<(
+          { __typename?: 'Question' }
+          & Pick<Question, 'id' | 'statement'>
+          & { answers?: Maybe<Array<(
+            { __typename?: 'Answer' }
+            & Pick<Answer, 'id' | 'text'>
+          )>> }
+        )> }
+      )>, course: (
+        { __typename?: 'Course' }
+        & Pick<Course, 'id'>
+        & { courseDetail: (
+          { __typename?: 'CourseDetail' }
+          & Pick<CourseDetail, 'id' | 'name'>
+        ) }
+      ) }
+    ) }
+  ) }
+);
+
 export type QuizzQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
@@ -787,9 +879,12 @@ export type UserCourseQuery = (
     & { quizz?: Maybe<(
       { __typename?: 'Quizz' }
       & Pick<Quizz, 'id' | 'status'>
-      & { quizzDetail?: Maybe<(
+      & { performedQuizz: Array<(
+        { __typename?: 'PerformedQuizz' }
+        & Pick<PerformedQuizz, 'id' | 'finalScore'>
+      )>, quizzDetail?: Maybe<(
         { __typename?: 'QuizzDetail' }
-        & Pick<QuizzDetail, 'id' | 'availableTime'>
+        & Pick<QuizzDetail, 'id' | 'availableTime' | 'minScore'>
       )> }
     )>, courseDetail: (
       { __typename?: 'CourseDetail' }
@@ -820,6 +915,29 @@ export type UserCoursesQuery = (
     & { courseDetail: (
       { __typename?: 'CourseDetail' }
       & Pick<CourseDetail, 'id' | 'name' | 'description' | 'coverPhoto'>
+    ) }
+  )> }
+);
+
+export type UserQuizzesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UserQuizzesQuery = (
+  { __typename?: 'Query' }
+  & { userQuizzes: Array<(
+    { __typename?: 'PerformedQuizz' }
+    & Pick<PerformedQuizz, 'id' | 'updatedAt'>
+    & { quizz: (
+      { __typename?: 'Quizz' }
+      & Pick<Quizz, 'id'>
+      & { course: (
+        { __typename?: 'Course' }
+        & Pick<Course, 'id'>
+        & { courseDetail: (
+          { __typename?: 'CourseDetail' }
+          & Pick<CourseDetail, 'id' | 'name' | 'description' | 'coverPhoto'>
+        ) }
+      ) }
     ) }
   )> }
 );
@@ -1010,6 +1128,19 @@ export const PerformQuizzDocument = gql`
 export function usePerformQuizzMutation() {
   return Urql.useMutation<PerformQuizzMutation, PerformQuizzMutationVariables>(PerformQuizzDocument);
 };
+export const SolveQuizzDocument = gql`
+    mutation solveQuizz($id: String!, $input: InputSolvequizz!) {
+  solveQuizz(id: $id, input: $input) {
+    score
+    approved
+    attemptsLeft
+  }
+}
+    `;
+
+export function useSolveQuizzMutation() {
+  return Urql.useMutation<SolveQuizzMutation, SolveQuizzMutationVariables>(SolveQuizzDocument);
+};
 export const UpdateCourseDocument = gql`
     mutation updateCourse($id: String!, $courseDetail: InputCourseDetail, $courseSessions: [InputCourseSessionUpdate]) {
   updateCourse(
@@ -1136,6 +1267,46 @@ export const MeDocument = gql`
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 };
+export const PerformedQuizzDocument = gql`
+    query performedQuizz($id: String!) {
+  performedQuizz(id: $id) {
+    id
+    expirationDate
+    finalScore
+    status
+    quizz {
+      id
+      status
+      attemptsLeft
+      quizzDetail {
+        id
+        availableTime
+        description
+        minScore
+        questions {
+          id
+          statement
+          answers {
+            id
+            text
+          }
+        }
+      }
+      course {
+        id
+        courseDetail {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function usePerformedQuizzQuery(options: Omit<Urql.UseQueryArgs<PerformedQuizzQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<PerformedQuizzQuery>({ query: PerformedQuizzDocument, ...options });
+};
 export const QuizzDocument = gql`
     query quizz($id: String!) {
   quizz(id: $id) {
@@ -1207,9 +1378,14 @@ export const UserCourseDocument = gql`
     quizz {
       id
       status
+      performedQuizz {
+        id
+        finalScore
+      }
       quizzDetail {
         id
         availableTime
+        minScore
       }
     }
     courseDetail {
@@ -1258,6 +1434,30 @@ export const UserCoursesDocument = gql`
 
 export function useUserCoursesQuery(options: Omit<Urql.UseQueryArgs<UserCoursesQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<UserCoursesQuery>({ query: UserCoursesDocument, ...options });
+};
+export const UserQuizzesDocument = gql`
+    query userQuizzes {
+  userQuizzes {
+    id
+    updatedAt
+    quizz {
+      id
+      course {
+        id
+        courseDetail {
+          id
+          name
+          description
+          coverPhoto
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useUserQuizzesQuery(options: Omit<Urql.UseQueryArgs<UserQuizzesQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<UserQuizzesQuery>({ query: UserQuizzesDocument, ...options });
 };
 export const UsersDocument = gql`
     query users($args: PaginatedArgs!) {

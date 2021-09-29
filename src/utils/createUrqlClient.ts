@@ -1,14 +1,9 @@
-import { Cache, cacheExchange, Resolver } from "@urql/exchange-graphcache";
+import { Cache, cacheExchange } from "@urql/exchange-graphcache";
 import { multipartFetchExchange } from "@urql/exchange-multipart-fetch";
 import Router from "next/router";
-import { dedupExchange, Exchange, stringifyVariables } from "urql";
+import { dedupExchange, Exchange } from "urql";
 import { pipe, tap } from "wonka";
-import {
-  LoginMutation,
-  MeDocument,
-  MeQuery,
-  UsersToCourseMutationVariables,
-} from "../generated/graphql";
+import { LoginMutation, MeDocument, MeQuery } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 import { isServer } from "./isServer";
 
@@ -25,6 +20,9 @@ const errorExchange: Exchange =
           if (error?.message.includes("You don't have permission")) {
             Router.replace("/");
           }
+          // if (error?.message.includes("Quizz has expired!")) {
+          //   Router.replace("/intranet");
+          // }
         }
       })
     );
@@ -65,6 +63,17 @@ const invalidateQuizz = (cache: Cache) => {
 const invalidateCourse = (cache: Cache) => {
   const key = "Query";
   const field = "course";
+  invalidateList(cache, key, field);
+};
+const invalidateUserCourse = (cache: Cache) => {
+  const key = "Query";
+  const field = "userCourse";
+  invalidateList(cache, key, field);
+};
+
+const invalidatePerformedQuizz = (cache: Cache) => {
+  const key = "Query";
+  const field = "performedQuizz";
   invalidateList(cache, key, field);
 };
 
@@ -125,6 +134,13 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             },
             usersToCourse: (_result, args, cache, info) => {
               invalidateAllCourses(cache);
+            },
+            performQuizz: (_result, args, cache, info) => {
+              invalidateUserCourse(cache);
+              invalidatePerformedQuizz(cache);
+            },
+            solveQuizz: (_result, args, cache, info) => {
+              invalidatePerformedQuizz(cache);
             },
             login: (_result, args, cache, info) => {
               betterUpdateQuery<LoginMutation, MeQuery>(

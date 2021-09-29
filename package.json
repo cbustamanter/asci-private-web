@@ -25,6 +25,7 @@
     "next-seo": "^4.26.0",
     "next-urql": "^3.1.0",
     "react": "^17.0.2",
+    "react-countdown": "^2.3.2",
     "react-datepicker": "^4.1.1",
     "react-dom": "^17.0.2",
     "react-dropzone": "^11.3.4",

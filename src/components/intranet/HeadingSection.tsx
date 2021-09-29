@@ -1,5 +1,6 @@
 import { HStack, Box, Heading, Avatar, Text } from "@chakra-ui/react";
 import React from "react";
+import { StudentAvatar } from "./StudentAvatar";
 
 interface HeadingSectionProps {
   title: string;
@@ -19,7 +20,7 @@ export const HeadingSection: React.FC<HeadingSectionProps> = ({
         <Text>{subtitle}</Text>
       </Box>
       <Box>
-        <Avatar h="32px" w="32px" />
+        <StudentAvatar />
       </Box>
     </HStack>
   );

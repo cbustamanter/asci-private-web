@@ -1,0 +1,7 @@
+mutation solveQuizz($id: String!, $input: InputSolvequizz!) {
+  solveQuizz(id: $id, input: $input) {
+    score
+    approved
+    attemptsLeft
+  }
+}

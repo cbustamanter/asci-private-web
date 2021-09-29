@@ -1,0 +1,34 @@
+query performedQuizz($id: String!) {
+  performedQuizz(id: $id) {
+    id
+    expirationDate
+    finalScore
+    status
+    quizz {
+      id
+      status
+      attemptsLeft
+      quizzDetail {
+        id
+        availableTime
+        description
+        minScore
+        questions {
+          id
+          statement
+          answers {
+            id
+            text
+          }
+        }
+      }
+      course {
+        id
+        courseDetail {
+          id
+          name
+        }
+      }
+    }
+  }
+}

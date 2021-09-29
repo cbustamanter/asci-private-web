@@ -5,16 +5,22 @@ import {
   Button,
   Text,
   Image,
+  HStack,
 } from "@chakra-ui/react";
 import React from "react";
 import { S3_URL } from "../../utils/constant";
 import NextLink from "next/link";
+import moment from "moment";
+import { RiCalendar2Fill } from "react-icons/ri";
 
 interface IntraCardProps {
   title: string;
   description: string;
   coverPhoto: string;
   id: string;
+  btnText?: string;
+  btnDir?: string;
+  date?: string;
 }
 
 export const IntraCard: React.FC<IntraCardProps> = ({
@@ -22,6 +28,9 @@ export const IntraCard: React.FC<IntraCardProps> = ({
   description,
   coverPhoto,
   id,
+  btnText,
+  btnDir,
+  date,
 }) => {
   return (
     <SimpleGrid
@@ -38,8 +47,19 @@ export const IntraCard: React.FC<IntraCardProps> = ({
             {title}
           </Text>
           <Text noOfLines={5}>{description}</Text>
-          <NextLink href={`/intranet/course/${id}`}>
-            <Button width="max-content">Ver curso</Button>
+          {date && (
+            <HStack>
+              <RiCalendar2Fill />
+              <Text>
+                Realizado: {moment(parseInt(date)).format("DD/MM/YY")}
+              </Text>
+            </HStack>
+          )}
+
+          <NextLink href={btnDir ? btnDir : `/intranet/course/${id}`}>
+            <Button width="max-content">
+              {btnText ? btnText : "Ver curso"}
+            </Button>
           </NextLink>
         </Stack>
       </GridItem>

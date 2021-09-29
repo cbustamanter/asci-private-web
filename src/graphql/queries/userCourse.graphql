@@ -4,9 +4,14 @@ query userCourse($courseId: String!) {
     quizz {
       id
       status
+      performedQuizz {
+        id
+        finalScore
+      }
       quizzDetail {
         id
         availableTime
+        minScore
       }
     }
     courseDetail {

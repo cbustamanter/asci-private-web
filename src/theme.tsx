@@ -8,6 +8,7 @@ import { LoginStyle as LoginWrapper } from "./styles/components/LoginStyle";
 import { SelectFieldStyle as SelectField } from "./styles/components/SelectFieldStyle";
 import { TabStyle as Tabs } from "./styles/components/TabSyle";
 import { SidebarItemStyle as SidebarItem } from "./styles/components/SidebarItemStyle";
+import { AnswerOptionStyle as AnswerOption } from "./styles/components/AnswerOptionStyle";
 
 const fonts = { mono: `'Menlo', monospace` };
 
@@ -44,6 +45,7 @@ const theme = extendTheme({
     darkred: "#7A0B0B",
     darkplate: "#9399AD",
     green: "#21D07C",
+    disapproved: "#EB5757",
   },
   components: {
     Button,
@@ -54,6 +56,7 @@ const theme = extendTheme({
     Tabs,
     Link,
     SidebarItem,
+    AnswerOption,
   },
   fonts,
   breakpoints,

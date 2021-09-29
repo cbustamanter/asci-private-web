@@ -44,7 +44,7 @@ import { useGetStringId } from "../../../utils/useGetStringId";
 
 const Course: React.FC<{}> = ({}) => {
   const id = useGetStringId();
-  const [{ data: meData }] = useMeQuery();
+  const [{ data: meData }] = useMeQuery({});
   const [active, setActive] = useState<number>(0);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [, performQuizz] = usePerformQuizzMutation();
@@ -60,6 +60,8 @@ const Course: React.FC<{}> = ({}) => {
   useEffect(() => {
     if (data && !fetching) {
       const sessions = [...data.userCourse.courseDetail.courseSessions];
+      const quizz = data.userCourse.quizz;
+      const performedQuizz = quizz?.performedQuizz;
       const started = sessions.findIndex((s) => s.condition.status == 2);
       const aboutToStart = sessions.findIndex((s) => s.condition.status == 3);
       const upcoming = sessions.findIndex((s) => s.condition.status == 4);
@@ -83,7 +85,14 @@ const Course: React.FC<{}> = ({}) => {
       }
 
       if (now > courseEndDate && now <= quizzAvailability) {
-        setIsQuizzAvailable(true);
+        if (performedQuizz && performedQuizz.length < 3) {
+          const anyApproved = performedQuizz.find(
+            (p) => p.finalScore > (quizz?.quizzDetail?.minScore as number)
+          );
+          if (!anyApproved) {
+            setIsQuizzAvailable(true);
+          }
+        }
       }
     }
   }, [data]);
@@ -114,11 +123,11 @@ const Course: React.FC<{}> = ({}) => {
     >
       {data && !fetching && (
         <>
-          <BackButton text="Regresar" />
+          <BackButton text="Regresar" route="/intranet" />
           <Heading mt={4} color="white" fontSize="x-large">
             {data?.userCourse.courseDetail.name}
           </Heading>
-          {!isQuizzAvailable && (
+          {isQuizzAvailable && (
             <Flex justifyContent="flex-end">
               <Button variant="green" onClick={() => handlePerformQuizz()}>
                 Realizar examen
