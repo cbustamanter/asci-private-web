@@ -1,4 +1,4 @@
-import { SideBarAction } from "../actions/sideBarActions";
+import { SideBarAction } from "../actions/sidebarActions";
 
 export interface SideBarState {
   isSideBarOpen: boolean;
