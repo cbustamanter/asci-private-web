@@ -20,9 +20,9 @@ const errorExchange: Exchange =
           if (error?.message.includes("You don't have permission")) {
             Router.replace("/");
           }
-          // if (error?.message.includes("Quizz has expired!")) {
-          //   Router.replace("/intranet");
-          // }
+          if (error?.message.includes("reload")) {
+            Router.reload();
+          }
         }
       })
     );
@@ -140,6 +140,9 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               invalidatePerformedQuizz(cache);
             },
             solveQuizz: (_result, args, cache, info) => {
+              invalidatePerformedQuizz(cache);
+            },
+            generate: (_result, args, cache, info) => {
               invalidatePerformedQuizz(cache);
             },
             login: (_result, args, cache, info) => {

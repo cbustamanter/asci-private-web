@@ -2,6 +2,7 @@ query performedQuizz($id: String!) {
   performedQuizz(id: $id) {
     id
     expirationDate
+    certificateUrl
     finalScore
     status
     quizz {

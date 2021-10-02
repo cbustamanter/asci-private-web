@@ -6,6 +6,7 @@ import {
   Heading,
   HStack,
   Icon,
+  Link,
   SimpleGrid,
   Stack,
   Text,
@@ -26,6 +27,7 @@ import { MedalIcon } from "../../../components/Icons/MedalIcon";
 import { AnswerOption } from "../../../components/intranet/AnswerOption";
 import { BackButton } from "../../../components/intranet/BackButton";
 import {
+  useGenerateMutation,
   useMeQuery,
   usePerformedQuizzQuery,
   usePerformQuizzMutation,
@@ -54,6 +56,7 @@ const Quizz: React.FC<{}> = ({}) => {
 
   const [, solveQuizz] = useSolveQuizzMutation();
   const [, performQuizz] = usePerformQuizzMutation();
+  const [{ fetching }, generate] = useGenerateMutation();
 
   const { onOpen, onClose, isOpen } = useDisclosure();
   const [questionN, setQuestionN] = useState(0);
@@ -126,12 +129,13 @@ const Quizz: React.FC<{}> = ({}) => {
   return (
     <SimpleGrid columns={12}>
       <GridItem
-        colSpan={4}
-        px={16}
+        colSpan={{ base: 12, sm: 4 }}
+        px={{ base: 6, md: 16 }}
+        py={{ base: 4, sm: 0 }}
         display="flex"
         justifyContent="center"
         flexDirection="column"
-        height="100vh"
+        height={{ sm: "100vh" }}
         borderRight="1px solid"
         borderRightColor="blue.800"
       >
@@ -155,19 +159,20 @@ const Quizz: React.FC<{}> = ({}) => {
         </Stack>
       </GridItem>
       <GridItem
-        colSpan={8}
+        colSpan={{ base: 12, sm: 8 }}
         background={`url(${S3_URL}/public-assets/courseBg.png)`}
         backgroundRepeat="no-repeat"
         display="flex"
         justifyContent="center"
-        position="relative"
+        position={{ md: "relative" }}
         borderRight="1px solid"
         borderRightColor="blue.800"
       >
         {oPerformedQuizz.questions && (
           <Stack
             h="full"
-            w="70%"
+            py={{ base: 4, sm: 0 }}
+            w={{ base: "90%", sm: "70%" }}
             justifyContent="center"
             color="white"
             spacing={4}
@@ -314,7 +319,26 @@ const Quizz: React.FC<{}> = ({}) => {
                 <Text mt={4}>Tus respuestas serán enviadas a tu correo.</Text>
                 <Stack spacing={6} mt={6}>
                   {oPerformedQuizz.approved ? (
-                    <Button>Generar mi certificado</Button>
+                    !oPerformedQuizz.hasCertificate ? (
+                      <Button
+                        isLoading={fetching}
+                        onClick={async () => {
+                          await generate({
+                            performedQuizzId: oPerformedQuizz.id,
+                          });
+                        }}
+                      >
+                        Generar mi certificado
+                      </Button>
+                    ) : (
+                      <Button
+                        as={Link}
+                        href={oPerformedQuizz.certificateUrl}
+                        isExternal
+                      >
+                        Ver mi certificado
+                      </Button>
+                    )
                   ) : (
                     <>
                       {!!oPerformedQuizz.attemptsLeft && (

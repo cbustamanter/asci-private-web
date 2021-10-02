@@ -3,9 +3,10 @@ export const SidebarItemStyle = {
   baseStyle: {
     Icon: {
       color: "darkplate",
-      fontSize: "24px",
+      fontSize: { base: "20px", md: "24px" },
     },
     Text: {
+      display: { base: "none", md: "block" },
       color: "darkplate",
       fontWeight: "bold",
     },

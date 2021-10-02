@@ -37,27 +37,31 @@ export const IntranetSidebar: React.FC<IntranetSidebarProps> = ({}) => {
             borderRadius="full"
             backgroundColor="blue.500"
             boxSize="80px"
+            h={{ base: "30px", md: "50px", lg: "80px" }}
+            w={{ base: "30px", md: "50px", lg: "80px" }}
             alt="Foto"
             mb={4}
           />
           <Text
             lineHeight="24px"
             fontWeight="700"
-            fontSize="18px"
+            fontSize={{ base: "14px", md: "18px" }}
             maxWidth="170px"
           >
             {data.names} {data.surnames}
           </Text>
         </Stack>
-        <Stack px={6} py={8}>
+        <Stack px={{ base: 1, md: 6 }} py={8}>
           <Text
             mb={4}
             color="darkplate"
-            fontSize="12px"
+            fontSize={{ base: "10px", md: "12px" }}
             fontWeight="700"
-            letterSpacing="0.1em"
+            letterSpacing={{ base: "0px", md: "0.1em" }}
+            textAlign={{ base: "center", md: "left" }}
+            textTransform="uppercase"
           >
-            ESTUDIANTE
+            Estudiante
           </Text>
           <SidebarItem text="Mis cursos" icon={RiStackFill} route="/intranet" />
           <SidebarItem

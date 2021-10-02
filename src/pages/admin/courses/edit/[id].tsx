@@ -30,7 +30,7 @@ import {
 import { S3_URL } from "../../../../utils/constant";
 import { createUrqlClient } from "../../../../utils/createUrqlClient";
 import { useGetStringId } from "../../../../utils/useGetStringId";
-import { sessionObject } from "../new";
+import { courseSchema, sessionObject } from "../new";
 
 const EditCourse: React.FC<{}> = ({}) => {
   const id = useGetStringId();
@@ -75,6 +75,7 @@ const EditCourse: React.FC<{}> = ({}) => {
       ) : (
         <Formik
           enableReinitialize
+          validationSchema={courseSchema}
           initialValues={{
             name: data?.course?.courseDetail.name,
             description: data?.course?.courseDetail.description,

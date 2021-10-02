@@ -12,6 +12,7 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import getYouTubeID from "get-youtube-id";
@@ -23,6 +24,7 @@ import {
   RiArrowDownFill,
   RiCalendar2Fill,
   RiCheckDoubleLine,
+  RiDownload2Fill,
   RiDraftFill,
   RiFolderOpenFill,
 } from "react-icons/ri";
@@ -30,6 +32,11 @@ import { CourseIcon } from "../../../components/Icons/CourseIcon";
 import { BackButton } from "../../../components/intranet/BackButton";
 import { IntranetContainer } from "../../../components/intranet/IntranetContainer";
 import { LoadingMask } from "../../../components/LoadingMask";
+import { ModalDialog } from "../../../components/modals/ModalDialog";
+import {
+  CustomSesssionFile,
+  ModalMaterialBody,
+} from "../../../components/modals/ModalMaterialBody";
 import {
   useMeQuery,
   usePerformQuizzMutation,
@@ -44,9 +51,13 @@ import { useGetStringId } from "../../../utils/useGetStringId";
 
 const Course: React.FC<{}> = ({}) => {
   const id = useGetStringId();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [{ data: meData }] = useMeQuery({});
   const [active, setActive] = useState<number>(0);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [courseSessionFiles, setCourseSessionFiles] = useState<
+    CustomSesssionFile | undefined
+  >(undefined);
   const [, performQuizz] = usePerformQuizzMutation();
   const [isQuizzAvailable, setIsQuizzAvailable] = useState(false);
   const [{ data, fetching }] = useUserCourseQuery({
@@ -121,6 +132,9 @@ const Course: React.FC<{}> = ({}) => {
       background={`url(${S3_URL}/public-assets/courseBg.png)`}
       backgroundRepeat="no-repeat"
     >
+      <ModalDialog onClose={onClose} isOpen={isOpen} title="Materiales">
+        <ModalMaterialBody data={courseSessionFiles} />
+      </ModalDialog>
       {data && !fetching && (
         <>
           <BackButton text="Regresar" route="/intranet" />
@@ -137,7 +151,8 @@ const Course: React.FC<{}> = ({}) => {
 
           <SimpleGrid columns={12} spacing={4} mt={4} pb={6}>
             <GridItem
-              colSpan={7}
+              order={{ base: 2, md: 1 }}
+              colSpan={{ base: 12, md: 7 }}
               maxHeight="384px"
               minHeight="384px"
               background={`url(${S3_URL}/public-assets/courseVideoBg.png)`}
@@ -225,11 +240,12 @@ const Course: React.FC<{}> = ({}) => {
               </Stack>
             </GridItem>
             <GridItem
-              colSpan={5}
+              order={{ base: 1, md: 2 }}
+              colSpan={{ base: 12, md: 5 }}
               bg="blue.800"
               borderRadius={3}
-              maxHeight="384px"
-              minHeight="384px"
+              maxHeight={{ base: "210px", md: "384px" }}
+              minHeight={{ base: "100px", md: "384px" }}
               overflowY="auto"
             >
               {data?.userCourse.courseDetail.courseSessions.map((s, idx) => (
@@ -259,13 +275,23 @@ const Course: React.FC<{}> = ({}) => {
                           Sesión {idx + 1}
                         </Text>
                         {!!s.courseSessionFiles?.length && (
-                          <HStack color="green" spacing={1}>
-                            <Icon as={RiFolderOpenFill} fontSize="15px" />
-                            <Text fontWeight="bold" fontSize="14.5px">
-                              Materiales
-                            </Text>
-                            <Icon as={RiArrowDownFill} fontSize="12px" />
-                          </HStack>
+                          <>
+                            <HStack color="green" spacing={1}>
+                              <Icon as={RiFolderOpenFill} fontSize="15px" />
+                              <Text
+                                fontWeight="bold"
+                                fontSize="14.5px"
+                                cursor="pointer"
+                                onClick={() => {
+                                  setCourseSessionFiles(s.courseSessionFiles);
+                                  onOpen();
+                                }}
+                              >
+                                Materiales
+                              </Text>
+                              <Icon as={RiArrowDownFill} fontSize="12px" />
+                            </HStack>
+                          </>
                         )}
                       </HStack>
                     </Radio>
@@ -304,7 +330,7 @@ const Course: React.FC<{}> = ({}) => {
             borderTopColor="blue.400"
             spacing={5}
           >
-            <GridItem colSpan={4}>
+            <GridItem colSpan={{ base: 12, md: 4 }}>
               <Stack position="relative" align="center" justifyContent="center">
                 <Image
                   src={`${S3_URL}/cover-photos/${data?.userCourse.courseDetail.coverPhoto}`}
@@ -338,7 +364,7 @@ const Course: React.FC<{}> = ({}) => {
                 </HStack>
               </Stack>
             </GridItem>
-            <GridItem colSpan={8}>
+            <GridItem colSpan={{ base: 12, md: 8 }}>
               <HStack
                 borderLeft="4px solid"
                 borderLeftColor="blue.500"

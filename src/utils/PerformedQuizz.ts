@@ -7,6 +7,9 @@ export class PerformedQuizz {
     this.data = data;
   }
 
+  get id() {
+    return this.data?.performedQuizz.id as string;
+  }
   get questionsLen() {
     return this.data?.performedQuizz.quizz.quizzDetail?.questions
       .length as number;
@@ -49,6 +52,13 @@ export class PerformedQuizz {
       (this.data?.performedQuizz.finalScore as number) >=
       (this.data?.performedQuizz.quizz.quizzDetail?.minScore as number)
     );
+  }
+  get hasCertificate() {
+    return this.data?.performedQuizz.certificateUrl ? true : false;
+  }
+
+  get certificateUrl() {
+    return this.data?.performedQuizz.certificateUrl as string;
   }
 
   get approvedHeadingText() {

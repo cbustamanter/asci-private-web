@@ -20,7 +20,10 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
   const styles = useMultiStyleConfig("SidebarItem", { variant });
   return (
     <NextLink href={route}>
-      <HStack cursor="pointer">
+      <HStack
+        cursor="pointer"
+        justifyContent={{ base: "center", md: "flex-start" }}
+      >
         <Icon as={icon} __css={styles.Icon} />
         <Box __css={styles.Text}>{text}</Box>
       </HStack>

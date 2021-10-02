@@ -1,0 +1,3 @@
+mutation generate($performedQuizzId: String!) {
+  generate(performedQuizzId: $performedQuizzId)
+}

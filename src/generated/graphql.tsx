@@ -145,6 +145,7 @@ export type Mutation = {
   updateCourse: Scalars['Boolean'];
   deleteSession: Scalars['Boolean'];
   changeCourseStatus: Scalars['Boolean'];
+  generate: Scalars['String'];
   performQuizz: PerformedQuizz;
   solveQuizz: QuizzResult;
   updateQuizz: Scalars['Boolean'];
@@ -180,6 +181,11 @@ export type MutationDeleteSessionArgs = {
 export type MutationChangeCourseStatusArgs = {
   status: Scalars['Int'];
   id: Scalars['String'];
+};
+
+
+export type MutationGenerateArgs = {
+  performedQuizzId: Scalars['String'];
 };
 
 
@@ -278,6 +284,7 @@ export type PerformedQuizz = {
   finalScore: Scalars['Int'];
   expirationDate: Scalars['String'];
   solved: Array<SolvedQuizz>;
+  certificateUrl?: Maybe<Scalars['String']>;
 };
 
 export type Query = {
@@ -367,8 +374,8 @@ export type Quizz = {
   course: Course;
   quizzDetail?: Maybe<QuizzDetail>;
   performedQuizz: Array<PerformedQuizz>;
-  attemptsLeft: Scalars['Int'];
   statusText: Scalars['String'];
+  attemptsLeft: Scalars['Int'];
 };
 
 export type QuizzDetail = {
@@ -608,6 +615,16 @@ export type ForgotPasswordMutation = (
   ) }
 );
 
+export type GenerateMutationVariables = Exact<{
+  performedQuizzId: Scalars['String'];
+}>;
+
+
+export type GenerateMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'generate'>
+);
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String'];
   password: Scalars['String'];
@@ -776,7 +793,7 @@ export type PerformedQuizzQuery = (
   { __typename?: 'Query' }
   & { performedQuizz: (
     { __typename?: 'PerformedQuizz' }
-    & Pick<PerformedQuizz, 'id' | 'expirationDate' | 'finalScore' | 'status'>
+    & Pick<PerformedQuizz, 'id' | 'expirationDate' | 'certificateUrl' | 'finalScore' | 'status'>
     & { quizz: (
       { __typename?: 'Quizz' }
       & Pick<Quizz, 'id' | 'status' | 'attemptsLeft'>
@@ -1106,6 +1123,15 @@ export const ForgotPasswordDocument = gql`
 export function useForgotPasswordMutation() {
   return Urql.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(ForgotPasswordDocument);
 };
+export const GenerateDocument = gql`
+    mutation generate($performedQuizzId: String!) {
+  generate(performedQuizzId: $performedQuizzId)
+}
+    `;
+
+export function useGenerateMutation() {
+  return Urql.useMutation<GenerateMutation, GenerateMutationVariables>(GenerateDocument);
+};
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
@@ -1272,6 +1298,7 @@ export const PerformedQuizzDocument = gql`
   performedQuizz(id: $id) {
     id
     expirationDate
+    certificateUrl
     finalScore
     status
     quizz {

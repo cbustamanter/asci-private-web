@@ -7,6 +7,7 @@ import {
   Switch,
   Text,
   useColorModeValue,
+  useToast,
 } from "@chakra-ui/react";
 import { FieldArray, Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
@@ -22,6 +23,7 @@ import { RegularDropzone } from "../../../components/RegularDropzone";
 import { useCreateCourseMutation } from "../../../generated/graphql";
 import { CourseSessions } from "../../../types/courseTypes";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
+import * as yup from "yup";
 
 export const sessionObject: CourseSessions = {
   name: "",
@@ -31,8 +33,14 @@ export const sessionObject: CourseSessions = {
   files: undefined,
 };
 
+export const courseSchema = yup.object().shape({
+  name: yup.string().required("Nombre de curso es requerido"),
+  description: yup.string().required("Descripción es requerida"),
+});
+
 const New: React.FC<{}> = ({}) => {
   const [, createCourse] = useCreateCourseMutation();
+  const toast = useToast();
   const bg = useColorModeValue("#F7F9FB", "gray.800");
   const filesBg = useColorModeValue("#E6EAED", "gray.600");
 
@@ -40,6 +48,7 @@ const New: React.FC<{}> = ({}) => {
     <Wrapper>
       <SectionHeading title="Crear curso" />
       <Formik
+        validationSchema={courseSchema}
         initialValues={{
           name: "",
           description: "",
@@ -51,6 +60,13 @@ const New: React.FC<{}> = ({}) => {
           coverPhoto: {} as File,
         }}
         onSubmit={async (values, { setErrors }) => {
+          if (!Object.keys(values.coverPhoto).length) {
+            toast({
+              description: "Foto de portada es requerida",
+              status: "error",
+            });
+            return;
+          }
           const response = await createCourse({
             courseDetail: {
               hasTest: values.hasTest,

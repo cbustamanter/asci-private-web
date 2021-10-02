@@ -41,7 +41,7 @@ const Index: React.FC<{}> = ({}) => {
             id={c.id}
           />
         ))}
-        <Tabs variant="main" mt={4}>
+        {/* <Tabs variant="main" mt={4}>
           <TabList>
             <Tab>PRÓXIMOS CURSOS</Tab>
             <Tab>CURSOS TERMINADOS</Tab>
@@ -80,7 +80,7 @@ const Index: React.FC<{}> = ({}) => {
               </SimpleGrid>
             </TabPanel>
           </TabPanels>
-        </Tabs>
+        </Tabs> */}
       </IntranetContainer>
     );
   }
