@@ -144,10 +144,10 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             performQuizz: (_result, args, cache, info) => {
               invalidateUserCourse(cache);
               invalidatePerformedQuizz(cache);
+              invalidateUserQuizzes(cache);
             },
             solveQuizz: (_result, args, cache, info) => {
               invalidatePerformedQuizz(cache);
-              invalidateUserQuizzes(cache);
             },
             generate: (_result, args, cache, info) => {
               invalidatePerformedQuizz(cache);

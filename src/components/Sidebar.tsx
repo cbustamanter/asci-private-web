@@ -62,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({}) => {
         />
       </Flex>
       <SidebarSection title="INTRANET" items={intranetItems} />
-      <SidebarSection mt={8} title="WEB PÚBLICA" items={publicItems} />
+      {/* <SidebarSection mt={8} title="WEB PÚBLICA" items={publicItems} /> */}
     </Box>
   );
 };

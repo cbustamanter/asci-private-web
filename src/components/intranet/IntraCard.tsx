@@ -23,6 +23,7 @@ interface IntraCardProps {
   date?: string;
 }
 
+moment.locale("es");
 export const IntraCard: React.FC<IntraCardProps> = ({
   title,
   description,
@@ -50,9 +51,7 @@ export const IntraCard: React.FC<IntraCardProps> = ({
           {date && (
             <HStack>
               <RiCalendar2Fill />
-              <Text>
-                Realizado: {moment(parseInt(date)).format("DD/MM/YY")}
-              </Text>
+              <Text>Realizado: {moment(parseInt(date)).format("LLL")}</Text>
             </HStack>
           )}
 

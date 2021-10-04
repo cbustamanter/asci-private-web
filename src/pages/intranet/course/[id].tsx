@@ -97,7 +97,6 @@ const Course: React.FC<{}> = ({}) => {
 
       if (now > courseEndDate && now <= quizzAvailability) {
         if (performedQuizz && performedQuizz.length < 3) {
-          console.log(`por aca`, performedQuizz);
           const anyApproved = performedQuizz.find(
             (p) => p.finalScore > (quizz?.quizzDetail?.minScore as number)
           );
