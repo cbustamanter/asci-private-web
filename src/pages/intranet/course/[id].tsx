@@ -104,8 +104,6 @@ const Course: React.FC<{}> = ({}) => {
           if (!anyApproved) {
             setIsQuizzAvailable(true);
           }
-        } else {
-          setIsQuizzAvailable(true);
         }
       }
     }

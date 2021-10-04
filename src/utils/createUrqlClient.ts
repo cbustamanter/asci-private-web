@@ -77,6 +77,12 @@ const invalidatePerformedQuizz = (cache: Cache) => {
   invalidateList(cache, key, field);
 };
 
+const invalidateUserQuizzes = (cache: Cache) => {
+  const key = "Query";
+  const field = "userQuizzes";
+  invalidateList(cache, key, field);
+};
+
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = "";
   if (isServer()) {
@@ -141,6 +147,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             },
             solveQuizz: (_result, args, cache, info) => {
               invalidatePerformedQuizz(cache);
+              invalidateUserQuizzes(cache);
             },
             generate: (_result, args, cache, info) => {
               invalidatePerformedQuizz(cache);

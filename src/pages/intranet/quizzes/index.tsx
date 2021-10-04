@@ -1,3 +1,4 @@
+import moment from "moment";
 import { NextSeo } from "next-seo";
 import React from "react";
 import { HeadingSection } from "../../../components/intranet/HeadingSection";
@@ -22,7 +23,7 @@ const Index: React.FC<{}> = ({}) => {
           coverPhoto={q.quizz.course.courseDetail.coverPhoto as string}
           btnDir={`/intranet/quizzes/${q.id}`}
           btnText="Ver examen"
-          date={q.updatedAt}
+          date={moment(q.updatedAt).format("LLL")}
           id={q.id}
         />
       ))}

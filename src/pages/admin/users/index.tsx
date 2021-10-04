@@ -156,7 +156,7 @@ const Index: React.FC<{}> = ({}) => {
                             <MenuItem
                               color="red"
                               onClick={() => {
-                                const status = (user.status ^= 1);
+                                const status = user.status === 1 ? 2 : 1;
                                 changeUserStatus({
                                   id: user.id,
                                   status,
