@@ -98,13 +98,15 @@ const Login: React.FC<loginProps> = ({}) => {
                 </Button>
               </LightMode>
               <Flex mt={4} flexDirection="column" alignItems="center">
-                <Box color="platedark">
-                  ¿No tienes cuenta? Compra un curso y accede
-                </Box>
-                <Box mt={2}>
-                  <Text as="u" color="blue.500" fontWeight="bold">
-                    Ver cursos disponibles
-                  </Text>
+                <Box>
+                  <Link
+                    href="https://api.whatsapp.com/send?phone=+51946628729"
+                    isExternal
+                  >
+                    <Text as="u" color="blue.500" fontWeight="bold">
+                      Contáctanos para más cursos
+                    </Text>
+                  </Link>
                 </Box>
               </Flex>
             </Form>

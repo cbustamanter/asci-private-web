@@ -83,7 +83,7 @@ const Course: React.FC<{}> = ({}) => {
       const quizzAvailability = moment(courseEndDate)
         .add(availability, "d")
         .toDate();
-      const now = moment().toDate();
+      const quizzAvailableDate = moment().toDate(); // will be available 1 day after course end date
       if (started > -1) {
         setActive(started);
         setSessionId(sessions[started].id);
@@ -95,7 +95,10 @@ const Course: React.FC<{}> = ({}) => {
         setSessionId(sessions[upcoming].id);
       }
 
-      if (now > courseEndDate && now <= quizzAvailability) {
+      if (
+        quizzAvailableDate > courseEndDate &&
+        quizzAvailableDate <= quizzAvailability
+      ) {
         if (performedQuizz && performedQuizz.length < 3) {
           const anyApproved = performedQuizz.find(
             (p) => p.finalScore > (quizz?.quizzDetail?.minScore as number)
