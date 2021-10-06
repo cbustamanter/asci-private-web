@@ -80,9 +80,13 @@ const invalidatePerformedQuizz = (cache: Cache) => {
 const invalidateUserQuizzes = (cache: Cache) => {
   const key = "Query";
   const field = "userQuizzes";
+  cache.invalidate(key, field);
+};
+const invalidateUserCertificate = (cache: Cache) => {
+  const key = "Query";
+  const field = "userCertificate";
   invalidateList(cache, key, field);
 };
-
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = "";
   if (isServer()) {
@@ -151,6 +155,10 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             },
             generate: (_result, args, cache, info) => {
               invalidatePerformedQuizz(cache);
+            },
+            generateWithoutTest: (_result, args, cache, info) => {
+              invalidateUserCourse(cache);
+              invalidateUserCertificate(cache);
             },
             login: (_result, args, cache, info) => {
               betterUpdateQuery<LoginMutation, MeQuery>(

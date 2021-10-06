@@ -1,0 +1,3 @@
+query userCertificate($courseId: String!) {
+  userCertificate(courseId: $courseId)
+}

@@ -52,7 +52,6 @@ const Login: React.FC<loginProps> = ({}) => {
               if (typeof router.query.next === "string") {
                 router.push(router.query.next);
               } else {
-                console.log(response.data.login.user.role);
                 if (response.data.login.user.role === 1) {
                   router.push("/");
                 } else {

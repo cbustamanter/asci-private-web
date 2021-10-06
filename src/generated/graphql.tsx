@@ -146,6 +146,7 @@ export type Mutation = {
   deleteSession: Scalars['Boolean'];
   changeCourseStatus: Scalars['Boolean'];
   generate: Scalars['String'];
+  generateWithoutTest: Scalars['String'];
   performQuizz: PerformedQuizz;
   solveQuizz: QuizzResult;
   updateQuizz: Scalars['Boolean'];
@@ -186,6 +187,11 @@ export type MutationChangeCourseStatusArgs = {
 
 export type MutationGenerateArgs = {
   performedQuizzId: Scalars['String'];
+};
+
+
+export type MutationGenerateWithoutTestArgs = {
+  courseId: Scalars['String'];
 };
 
 
@@ -279,18 +285,20 @@ export type PerformedQuizz = {
   updatedAt: Scalars['String'];
   id: Scalars['String'];
   quizz: Quizz;
-  user: User;
+  user?: Maybe<User>;
   status: Scalars['Int'];
   finalScore: Scalars['Int'];
   expirationDate: Scalars['String'];
   solved: Array<SolvedQuizz>;
   certificateUrl?: Maybe<Scalars['String']>;
+  hasAnyApproved: Scalars['Boolean'];
 };
 
 export type Query = {
   __typename?: 'Query';
   courses: PaginatedCourses;
   course?: Maybe<Course>;
+  userCertificate?: Maybe<Scalars['String']>;
   userCourse: Course;
   session?: Maybe<CourseSession>;
   performedQuizz: PerformedQuizz;
@@ -312,6 +320,11 @@ export type QueryCoursesArgs = {
 
 export type QueryCourseArgs = {
   id: Scalars['String'];
+};
+
+
+export type QueryUserCertificateArgs = {
+  courseId: Scalars['String'];
 };
 
 
@@ -625,6 +638,16 @@ export type GenerateMutation = (
   & Pick<Mutation, 'generate'>
 );
 
+export type GenerateWithoutTestMutationVariables = Exact<{
+  courseId: Scalars['String'];
+}>;
+
+
+export type GenerateWithoutTestMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'generateWithoutTest'>
+);
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String'];
   password: Scalars['String'];
@@ -793,7 +816,7 @@ export type PerformedQuizzQuery = (
   { __typename?: 'Query' }
   & { performedQuizz: (
     { __typename?: 'PerformedQuizz' }
-    & Pick<PerformedQuizz, 'id' | 'expirationDate' | 'certificateUrl' | 'finalScore' | 'status'>
+    & Pick<PerformedQuizz, 'id' | 'expirationDate' | 'certificateUrl' | 'finalScore' | 'status' | 'hasAnyApproved'>
     & { quizz: (
       { __typename?: 'Quizz' }
       & Pick<Quizz, 'id' | 'status' | 'attemptsLeft'>
@@ -881,6 +904,16 @@ export type SessionQuery = (
       & Pick<CourseDetail, 'id' | 'name' | 'description' | 'classUrl'>
     ) }
   )> }
+);
+
+export type UserCertificateQueryVariables = Exact<{
+  courseId: Scalars['String'];
+}>;
+
+
+export type UserCertificateQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'userCertificate'>
 );
 
 export type UserCourseQueryVariables = Exact<{
@@ -1132,6 +1165,15 @@ export const GenerateDocument = gql`
 export function useGenerateMutation() {
   return Urql.useMutation<GenerateMutation, GenerateMutationVariables>(GenerateDocument);
 };
+export const GenerateWithoutTestDocument = gql`
+    mutation generateWithoutTest($courseId: String!) {
+  generateWithoutTest(courseId: $courseId)
+}
+    `;
+
+export function useGenerateWithoutTestMutation() {
+  return Urql.useMutation<GenerateWithoutTestMutation, GenerateWithoutTestMutationVariables>(GenerateWithoutTestDocument);
+};
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
@@ -1301,6 +1343,7 @@ export const PerformedQuizzDocument = gql`
     certificateUrl
     finalScore
     status
+    hasAnyApproved
     quizz {
       id
       status
@@ -1397,6 +1440,15 @@ export const SessionDocument = gql`
 
 export function useSessionQuery(options: Omit<Urql.UseQueryArgs<SessionQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<SessionQuery>({ query: SessionDocument, ...options });
+};
+export const UserCertificateDocument = gql`
+    query userCertificate($courseId: String!) {
+  userCertificate(courseId: $courseId)
+}
+    `;
+
+export function useUserCertificateQuery(options: Omit<Urql.UseQueryArgs<UserCertificateQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<UserCertificateQuery>({ query: UserCertificateDocument, ...options });
 };
 export const UserCourseDocument = gql`
     query userCourse($courseId: String!) {

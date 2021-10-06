@@ -24,7 +24,6 @@ import {
   RiArrowDownFill,
   RiCalendar2Fill,
   RiCheckDoubleLine,
-  RiDownload2Fill,
   RiDraftFill,
   RiFolderOpenFill,
 } from "react-icons/ri";
@@ -38,9 +37,12 @@ import {
   ModalMaterialBody,
 } from "../../../components/modals/ModalMaterialBody";
 import {
+  useGenerateMutation,
+  useGenerateWithoutTestMutation,
   useMeQuery,
   usePerformQuizzMutation,
   useSessionQuery,
+  useUserCertificateQuery,
   useUserCourseQuery,
 } from "../../../generated/graphql";
 import { S3_URL } from "../../../utils/constant";
@@ -59,31 +61,41 @@ const Course: React.FC<{}> = ({}) => {
     CustomSesssionFile | undefined
   >(undefined);
   const [, performQuizz] = usePerformQuizzMutation();
+  const [{ fetching: fetchingGenerate }, generate] =
+    useGenerateWithoutTestMutation();
   const [isQuizzAvailable, setIsQuizzAvailable] = useState(false);
+  const [hasGenerateBtn, setHasGenerateBtn] = useState(false);
+  const [viewCertificateBtn, setViewCertificateBtn] = useState(false);
   const [{ data, fetching }] = useUserCourseQuery({
     pause: isServer(),
     variables: { courseId: id },
   });
+  const [{ data: certificateData, fetching: fetchingUserCertificate }] =
+    useUserCertificateQuery({
+      pause: isServer(),
+      variables: { courseId: id },
+    });
   const [{ data: sessionData, fetching: isSessionLoading }] = useSessionQuery({
     pause: isServer(),
     variables: { id: sessionId },
   });
   useEffect(() => {
-    if (data && !fetching) {
+    if (data && !fetching && !fetchingUserCertificate) {
       const sessions = [...data.userCourse.courseDetail.courseSessions];
+      const courseDetail = data.userCourse.courseDetail;
       const quizz = data.userCourse.quizz;
       const performedQuizz = quizz?.performedQuizz;
       const started = sessions.findIndex((s) => s.condition.status == 2);
       const aboutToStart = sessions.findIndex((s) => s.condition.status == 3);
       const upcoming = sessions.findIndex((s) => s.condition.status == 4);
       const availability = data.userCourse.quizz?.quizzDetail?.availableTime; // in days
-      const courseEndDate = moment(
-        data.userCourse.courseDetail.endDate
-      ).toDate();
+      const courseEndDate = moment(data.userCourse.courseDetail.endDate)
+        .add(1, "d")
+        .toDate(); // will be available 1 day after course end date
       const quizzAvailability = moment(courseEndDate)
         .add(availability, "d")
         .toDate();
-      const quizzAvailableDate = moment().toDate(); // will be available 1 day after course end date
+      const availableDate = moment().toDate();
       if (started > -1) {
         setActive(started);
         setSessionId(sessions[started].id);
@@ -94,22 +106,30 @@ const Course: React.FC<{}> = ({}) => {
         setActive(upcoming);
         setSessionId(sessions[upcoming].id);
       }
-
-      if (
-        quizzAvailableDate > courseEndDate &&
-        quizzAvailableDate <= quizzAvailability
-      ) {
-        if (performedQuizz && performedQuizz.length < 3) {
-          const anyApproved = performedQuizz.find(
-            (p) => p.finalScore > (quizz?.quizzDetail?.minScore as number)
-          );
-          if (!anyApproved) {
-            setIsQuizzAvailable(true);
+      if (availableDate > courseEndDate) {
+        //If course doesn't have test
+        if (!courseDetail.hasTest) {
+          if (!certificateData?.userCertificate) {
+            setHasGenerateBtn(true);
+            setViewCertificateBtn(false);
+          } else {
+            setViewCertificateBtn(true);
+            setHasGenerateBtn(false);
+          }
+        } else if (availableDate <= quizzAvailability) {
+          // if they have && It's still on time
+          if (performedQuizz && performedQuizz.length < 3) {
+            const anyApproved = performedQuizz.find(
+              (p) => p.finalScore > (quizz?.quizzDetail?.minScore as number)
+            );
+            if (!anyApproved) {
+              setIsQuizzAvailable(true);
+            }
           }
         }
       }
     }
-  }, [data]);
+  }, [data, certificateData]);
 
   const is2or3 = (status: number): boolean => {
     return status == 2 || status == 3;
@@ -128,6 +148,10 @@ const Course: React.FC<{}> = ({}) => {
     }
   };
 
+  const handleGenerate = async () => {
+    const response = await generate({ courseId: id });
+  };
+
   return (
     <IntranetContainer
       py={8}
@@ -144,10 +168,35 @@ const Course: React.FC<{}> = ({}) => {
           <Heading mt={4} color="white" fontSize="x-large">
             {data?.userCourse.courseDetail.name}
           </Heading>
+
           {isQuizzAvailable && (
             <Flex justifyContent="flex-end">
               <Button variant="green" onClick={() => handlePerformQuizz()}>
                 Realizar examen
+              </Button>
+            </Flex>
+          )}
+
+          {hasGenerateBtn && (
+            <Flex justifyContent="flex-end">
+              <Button
+                variant="green"
+                onClick={() => handleGenerate()}
+                isLoading={fetchingGenerate}
+              >
+                Generar Certificado
+              </Button>
+            </Flex>
+          )}
+          {viewCertificateBtn && (
+            <Flex justifyContent="flex-end">
+              <Button
+                as={Link}
+                href={`${process.env.NEXT_PUBLIC_S3_URL}/pdfs/${certificateData?.userCertificate}`}
+                isExternal
+                variant="green"
+              >
+                Ver mi certificado
               </Button>
             </Flex>
           )}

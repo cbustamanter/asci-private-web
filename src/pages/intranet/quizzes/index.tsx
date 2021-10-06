@@ -4,9 +4,10 @@ import { HeadingSection } from "../../../components/intranet/HeadingSection";
 import { IntraCard } from "../../../components/intranet/IntraCard";
 import { IntranetContainer } from "../../../components/intranet/IntranetContainer";
 import { useUserQuizzesQuery } from "../../../generated/graphql";
+import { isServer } from "../../../utils/isServer";
 
 const Index: React.FC<{}> = ({}) => {
-  const [{ data }] = useUserQuizzesQuery();
+  const [{ data }] = useUserQuizzesQuery({ pause: isServer() });
   return (
     <IntranetContainer py={8} px={6}>
       <NextSeo title="Mis exámenes | ASCI" description="Todos mis exámenes" />

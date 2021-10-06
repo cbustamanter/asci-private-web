@@ -70,7 +70,13 @@ export class PerformedQuizz {
   get approvedText() {
     return this.approved
       ? "Alcanzaste una nota aprobatoria y obtuviste el certificado del curso."
+      : this.hasAnyApproved
+      ? ""
       : `No te preocupes, aún te quedan ${this.data?.performedQuizz.quizz.attemptsLeft} intento(s), vuelve a dar el examen cuando te sientas listo.`;
+  }
+
+  get hasAnyApproved() {
+    return this.data?.performedQuizz.hasAnyApproved as boolean;
   }
 
   get finalScore() {

@@ -341,11 +341,12 @@ const Quizz: React.FC<{}> = ({}) => {
                     )
                   ) : (
                     <>
-                      {!!oPerformedQuizz.attemptsLeft && (
-                        <Button onClick={handleRetry}>
-                          Volver a intentarlo
-                        </Button>
-                      )}
+                      {!!oPerformedQuizz.attemptsLeft &&
+                        !oPerformedQuizz.hasAnyApproved && (
+                          <Button onClick={handleRetry}>
+                            Volver a intentarlo
+                          </Button>
+                        )}
                       <Button
                         variant="outline-main"
                         onClick={() => router.replace("/intranet")}
@@ -356,9 +357,6 @@ const Quizz: React.FC<{}> = ({}) => {
                   )}
                 </Stack>
               </Flex>
-              // response && (
-
-              // )
             )}
           </Stack>
         )}

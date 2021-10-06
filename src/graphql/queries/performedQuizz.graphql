@@ -5,6 +5,7 @@ query performedQuizz($id: String!) {
     certificateUrl
     finalScore
     status
+    hasAnyApproved
     quizz {
       id
       status

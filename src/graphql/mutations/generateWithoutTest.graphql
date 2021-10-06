@@ -1,0 +1,3 @@
+mutation generateWithoutTest($courseId: String!) {
+  generateWithoutTest(courseId: $courseId)
+}

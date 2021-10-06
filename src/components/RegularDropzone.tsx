@@ -1,4 +1,4 @@
-import { Flex, Icon, Text } from "@chakra-ui/react";
+import { Flex, Icon, Text, useToast } from "@chakra-ui/react";
 import React from "react";
 import Dropzone from "react-dropzone";
 import { BiPhotoAlbum } from "react-icons/bi";
@@ -8,18 +8,21 @@ interface RegularDropzoneProps {
   name?: string;
   allowMultiple?: boolean;
 }
-//TODO: Show error that indicates uploaded file surpass maxfile size
 export const RegularDropzone: React.FC<RegularDropzoneProps> = ({
   complete,
   name,
   allowMultiple,
 }) => {
   const multiple = allowMultiple ? true : false;
+  const toast = useToast();
   return (
     <Dropzone
-      onDrop={(acceptedFiles) => complete(acceptedFiles)}
+      onDropAccepted={(acceptedFiles) => complete(acceptedFiles)}
+      onDropRejected={(error) =>
+        toast({ description: error[0].errors[0].message, status: "error" })
+      }
       multiple={multiple}
-      maxSize={5000000}
+      maxSize={5242880}
     >
       {({ getRootProps, getInputProps }) => (
         <div {...getRootProps()}>

@@ -1,4 +1,4 @@
-import { Button } from "@chakra-ui/react";
+import { Button, useToast } from "@chakra-ui/react";
 import React from "react";
 import Dropzone, { DropEvent } from "react-dropzone";
 
@@ -11,9 +11,13 @@ export const AddSessionFiles: React.FC<AddSessionFilesProps> = ({
   complete,
   name,
 }) => {
+  const toast = useToast();
   return (
     <Dropzone
       onDrop={(acceptedFiles, _, event) => complete(acceptedFiles, event)}
+      onDropRejected={(error) =>
+        toast({ description: error[0].errors[0].message, status: "error" })
+      }
     >
       {({ getRootProps, getInputProps }) => (
         <div {...getRootProps()}>
