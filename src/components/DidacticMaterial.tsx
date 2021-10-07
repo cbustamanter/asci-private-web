@@ -38,7 +38,7 @@ export const DidacticMaterial: React.FC<DidacticMaterial> = ({
             <Flex key={v.idx + v.name} backgroundColor={filesBg} p={2} mt={3}>
               <Box>
                 {v.filename ? (
-                  <Link href={`${S3_URL}${v.filename}`} isExternal>
+                  <Link href={`${S3_URL}/sessions/${v.filename}`} isExternal>
                     {v.name}
                   </Link>
                 ) : (

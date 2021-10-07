@@ -1,25 +1,19 @@
-import {
-  SimpleGrid,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-} from "@chakra-ui/react";
 import { NextSeo } from "next-seo";
 import React from "react";
 import { HeadingSection } from "../../components/intranet/HeadingSection";
 import { IntraCard } from "../../components/intranet/IntraCard";
-import { IntraCoursecard } from "../../components/intranet/IntraCoursecard";
 import { IntranetContainer } from "../../components/intranet/IntranetContainer";
 import { LoadingMask } from "../../components/LoadingMask";
 import { useUserCoursesQuery } from "../../generated/graphql";
+import { isServer } from "../../utils/isServer";
 import { useIsAuth } from "../../utils/useIsAuth";
 
 const Index: React.FC<{}> = ({}) => {
   const { isChecking, data } = useIsAuth();
-  const [{ data: courses }] = useUserCoursesQuery();
+  const [{ data: courses }] = useUserCoursesQuery({
+    pause: isServer(),
+    requestPolicy: "cache-and-network",
+  });
   let body = <LoadingMask />;
   if (!data) {
     body = <LoadingMask />;

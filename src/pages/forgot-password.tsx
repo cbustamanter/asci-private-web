@@ -66,7 +66,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
                   <InputField
                     label="Correo electrónico"
                     name="email"
-                    placeholder="Ejemplo@culqi.com"
+                    placeholder="Ejemplo@asciperu.com"
                     type="email"
                   />
                   <LightMode>

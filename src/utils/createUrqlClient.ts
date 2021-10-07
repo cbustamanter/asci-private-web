@@ -87,6 +87,11 @@ const invalidateUserCertificate = (cache: Cache) => {
   const field = "userCertificate";
   invalidateList(cache, key, field);
 };
+const invalidateSearchUsers = (cache: Cache) => {
+  const key = "Query";
+  const field = "searchUsers";
+  invalidateList(cache, key, field);
+};
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = "";
   if (isServer()) {
@@ -116,6 +121,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
           Mutation: {
             createUser: (_result, args, cache, info) => {
               invalidateAllUsers(cache);
+              invalidateSearchUsers(cache);
             },
             updateUser: (_result, args, cache, info) => {
               invalidateAllUsers(cache);
@@ -144,6 +150,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             },
             usersToCourse: (_result, args, cache, info) => {
               invalidateAllCourses(cache);
+              invalidateSearchUsers(cache);
             },
             performQuizz: (_result, args, cache, info) => {
               invalidateUserCourse(cache);

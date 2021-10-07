@@ -30,6 +30,7 @@ export const StudentAvatar: React.FC<StudentAvatarProps> = ({}) => {
       />
       <MenuList>
         <MenuItem
+          color="red.400"
           onClick={async () => {
             await logout();
             router.replace("/login");

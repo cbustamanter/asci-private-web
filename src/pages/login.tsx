@@ -70,7 +70,7 @@ const Login: React.FC<loginProps> = ({}) => {
                 label="Correo electrónico"
                 onInput={() => setTokenError("")}
                 name="email"
-                placeholder="Ejemplo@culqi.com"
+                placeholder="Ejemplo@asciperu.com"
               />
               <Box my={4}>
                 <InputField

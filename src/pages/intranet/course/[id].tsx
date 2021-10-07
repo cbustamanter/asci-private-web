@@ -37,7 +37,6 @@ import {
   ModalMaterialBody,
 } from "../../../components/modals/ModalMaterialBody";
 import {
-  useGenerateMutation,
   useGenerateWithoutTestMutation,
   useMeQuery,
   usePerformQuizzMutation,
@@ -68,15 +67,18 @@ const Course: React.FC<{}> = ({}) => {
   const [viewCertificateBtn, setViewCertificateBtn] = useState(false);
   const [{ data, fetching }] = useUserCourseQuery({
     pause: isServer(),
+    requestPolicy: "cache-and-network",
     variables: { courseId: id },
   });
   const [{ data: certificateData, fetching: fetchingUserCertificate }] =
     useUserCertificateQuery({
       pause: isServer(),
+      requestPolicy: "cache-and-network",
       variables: { courseId: id },
     });
   const [{ data: sessionData, fetching: isSessionLoading }] = useSessionQuery({
     pause: isServer(),
+    requestPolicy: "cache-and-network",
     variables: { id: sessionId },
   });
   useEffect(() => {
