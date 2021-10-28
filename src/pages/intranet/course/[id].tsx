@@ -107,6 +107,9 @@ const Course: React.FC<{}> = ({}) => {
       } else if (upcoming > -1) {
         setActive(upcoming);
         setSessionId(sessions[upcoming].id);
+      } else {
+        setActive(0);
+        setSessionId(sessions[0].id);
       }
       if (availableDate > courseEndDate) {
         //If course doesn't have test
@@ -359,7 +362,9 @@ const Course: React.FC<{}> = ({}) => {
                           is2or3(s.condition.status) ? "blue.500" : "inherit"
                         }
                       >
-                        {s.condition.text}
+                        {s.condition.status == 4
+                          ? moment(s.condition.text).format("dddd HH:mm")
+                          : s.condition.text}
                       </Text>
                       {s.condition.status == 1 && (
                         <Icon as={RiCheckDoubleLine} />
