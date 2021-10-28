@@ -316,8 +316,7 @@ const Quizz: React.FC<{}> = ({}) => {
                   <Text>/</Text>
                   <Text>20</Text>
                 </HStack>
-                <Text mt={4}>Tus respuestas serán enviadas a tu correo.</Text>
-                <Stack spacing={6} mt={6}>
+                <Stack spacing={6} mt={3}>
                   {oPerformedQuizz.approved ? (
                     !oPerformedQuizz.hasCertificate ? (
                       <Button
