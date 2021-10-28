@@ -7,7 +7,10 @@ import { useUserQuizzesQuery } from "../../../generated/graphql";
 import { isServer } from "../../../utils/isServer";
 
 const Index: React.FC<{}> = ({}) => {
-  const [{ data }] = useUserQuizzesQuery({ pause: isServer() });
+  const [{ data }] = useUserQuizzesQuery({
+    pause: isServer(),
+    requestPolicy: "cache-and-network",
+  });
   return (
     <IntranetContainer py={8} px={6}>
       <NextSeo title="Mis exámenes | ASCI" description="Todos mis exámenes" />
