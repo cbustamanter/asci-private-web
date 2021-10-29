@@ -51,6 +51,7 @@ const Quizz: React.FC<{}> = ({}) => {
   const [{ data }] = usePerformedQuizzQuery({
     pause: isServer(),
     variables: { id },
+    requestPolicy: "cache-and-network",
   });
   const oPerformedQuizz = new PerformedQuizz(data);
 

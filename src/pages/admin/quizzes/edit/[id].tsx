@@ -37,6 +37,7 @@ const Edit: React.FC<{}> = ({}) => {
   const [{ data, fetching, error }] = useQuizzQuery({
     pause: isServer(),
     variables: { id },
+    requestPolicy: "cache-and-network",
   });
   const toast = useToast();
   const [, update] = useUpdateQuizzMutation();
